@@ -11,10 +11,7 @@ configMySQL = {
                'raise_on_warnings': True,
                }
 
-configES = [
-            {'host': 'localhost'},
-            {'host': 'othernode', 'port': 443, 'url_prefix': 'es', 'use_ssl': True},
-            ]
+configES = [{'host': '10.100.13.46', 'port': 9200}]
 
 queryPMC = "http://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi?"
 
