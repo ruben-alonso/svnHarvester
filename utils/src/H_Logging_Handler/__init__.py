@@ -16,7 +16,7 @@ option to false.
 import logging
 from logging.config import fileConfig
 
-logging.config.fileConfig('../logging_config.ini')
+logging.config.fileConfig('C:/Users/Ruben.Alonso/git/RouterTest/utils/src/logging_config.ini')
 fileLogger = logging.getLogger('file_logger')
 consoleLogger = logging.getLogger('root')
 

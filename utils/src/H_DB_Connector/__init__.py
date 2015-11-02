@@ -13,6 +13,7 @@ import H_Exception_Handler as EH
 import H_Logging_Handler as LH
 from abc import abstractclassmethod, ABCMeta
 from flask._compat import with_metaclass
+from _ssl import err_codes_to_names
 
 
 @contextlib.contextmanager
@@ -61,8 +62,8 @@ class H_DBConnection(object):
 
     def del_connection(self):
         """Function to close the connection when one exists"""
-        LH.fileLogger.info("Closing the connection")
         if self.__conn is not None:
+            LH.fileLogger.info("Closing the connection")
             self.__conn.close()
 
 
@@ -158,7 +159,10 @@ class _ElasticSearchV1(AbstractConnector):
         Raises DBConnectionError
         """
         self.fact = fact
-        self.connector = ES.Elasticsearch(config.configES)
+        try:
+            self.connector = ES.Elasticsearch(config.configES)
+        except urllib3.exceptions.LocationValueError as err:
+            raise EH.DBConnectionError("Location value error", str(err))
         try:
             with nostderr():
                 self.connector.ping()
@@ -322,11 +326,11 @@ class _ElasticSearchV1(AbstractConnector):
 #         # connObj.execute_insert_query(index='test', docType='testType', body=jsonVariable)
 #         response = connObj.execute_search_query(index='test', docType=None,
 #                                                 body={"query": {"match_all" : { }}})
-# 
+#  
 #         print("Got %d Hits:" % response['hits']['total'])
 #         for hit in response['hits']['hits']:
 #             print(hit["_source"])
-# 
+#  
 #         connObj.close()
 # except Exception as err:
 #     print(err)

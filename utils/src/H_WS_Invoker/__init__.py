@@ -11,6 +11,7 @@ import H_Exception_Handler as EH
 import H_Logging_Handler as LH
 import xml.etree.ElementTree as ET
 
+
 class H_WSInvoker (object):
     """Web services invoker to retrieve all information from a specific source
     and with specific conditions.
@@ -33,18 +34,18 @@ class H_WSInvoker (object):
         """
         LH.fileLogger.info("Retrieving xml information")
         try:
-            returnRequest = self.__retrieve_information(self, query)
+            returnRequest = self.__retrieve_information(query)
+            returnRequest.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise EH.GenericError("Invalid HTTP response", err)
+            raise EH.GenericError("Invalid HTTP response", str(err))
         except requests.exceptions.Timeout as err:
-            raise EH.GenericError("Timeout", err)
+            raise EH.GenericError("Timeout", str(err))
         except requests.exceptions.RequestException as err:
-            raise EH.GenericError("Request exception", err)
+            raise EH.GenericError("Request exception", str(err))
         try:
             xmlRequest = ET.fromstring(returnRequest.text)
         except ET.ParseError:
-            raise EH.IncorrectFormatError("Not well-formed", "The output format is\
-                                        not xml, please review ")
+            raise EH.IncorrectFormatError("Not well-formed", "The output format is not xml, please review ")
         return xmlRequest
 
     def retrieve_information_json(self, query):
@@ -56,17 +57,17 @@ class H_WSInvoker (object):
         """
         LH.fileLogger.info("Retrieving json information")
         try:
-            returnRequest = self.__retrieve_information(self, query)
+            returnRequest = self.__retrieve_information(query)
+            returnRequest.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise EH.GenericError("Invalid HTTP response", err)
+            raise EH.GenericError("Invalid HTTP response", str(err))
         except requests.exceptions.Timeout as err:
-            raise EH.GenericError("Timeout", err)
+            raise EH.GenericError("Timeout", str(err))
         except requests.exceptions.RequestException as err:
-            raise EH.GenericError("Request exception", err)
+            raise EH.GenericError("Request exception", str(err))
         try:
             json.loads(returnRequest.text)
         except json.decoder.JSONDecodeError:
-            raise EH.IncorrectFormatError("Not well-formed", "The output format is\
-                                        not xml, please review ")
+            raise EH.IncorrectFormatError("Not well-formed", "The output format is not xml, please review ")
 
-        return ET.fromstring(returnRequest.text)
+        return returnRequest.text
