@@ -2,6 +2,16 @@
 Created on 26 Oct 2015
 
 @author: Ruben.Alonso
+
+@Description: Module created for logging information and developed for Harvester
+project. It creates two different loggers, one which displays information
+through the standard output (consoleLogger) and another one (fileLogger) which
+saves it on a file. The setup information for the creation of these loggers is
+acquired from a config file called 'logging_config.ini' It also deactivates
+loggers from elasticsearch and urlib since those create a lot of noise. For
+specific debug it could be useful to reactive those by changing the propagate
+option to false.
+
 '''
 import logging
 from logging.config import fileConfig
