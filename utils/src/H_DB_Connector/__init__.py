@@ -37,34 +37,51 @@ def nostderr():
 class H_DBConnection(object):
     """ Factory class to select among all the possible DB we can provide"""
     __conn = None
+    __type = None
 
-    def get_connection(self, typeDB):
+    @classmethod
+    def get_connection(cls, typeDB):
         """Factory function which chooses among the possible DB
 
         Attributes:
             typeDB -- select which DB is gonig to be created by the factory
                       function
+
+        Raises: DBConnectionError
+
+        Returns: class DB connected to the DB
         """
         LH.fileLogger.info("Getting DB connection")
-        if self.__conn is None:
+        if cls.__conn is None:
             if "elastic_search_v1" == typeDB:
                 LH.fileLogger.info("ElasticSearch connection")
-                __conn = _ElasticSearchV1(self)
-                return __conn
+                type = typeDB
+                cls.__conn = _ElasticSearchV1(cls)
+                return cls.__conn
             if "mySQL_V1" == typeDB:
                 LH.fileLogger.info("MySQL connection")
-                __conn = 1  # MySQLV1(self)
-                return __conn
+                type = typeDB
+                cls.__conn = 1  # MySQLV1(self)
+                return cls.__conn
             raise EH.InputError("Incorrect BD name: " + typeDB)
         else:
-            LH.fileLogger.info("Returning existing connection")
-            return __conn
+            if cls.__type == typeDB:
+                LH.fileLogger.info("Returning existing connection")
+            else:
+                LH.fileLogger.info("Returning existing connection but from a \
+                    different DB type. Please, close the existing one before \
+                    and create the one you want")
+                LH.consoleLogger.info("Returning existing connection but from a \
+                    different DB type. Please, close the existing one before \
+                    and create the one you want")
+            return cls.__conn
 
-    def del_connection(self):
+    @classmethod
+    def del_connection(cls):
         """Function to close the connection when one exists"""
-        if self.__conn is not None:
+        if cls.__conn is not None:
             LH.fileLogger.info("Closing the connection")
-            self.__conn.close()
+            cls.__conn = None
 
 
 class AbstractConnector(with_metaclass(ABCMeta)):
@@ -201,7 +218,7 @@ class _ElasticSearchV1(AbstractConnector):
     def execute_create_table(self, index):
         LH.fileLogger.info("Creating a new table {0}".format(index))
         try:
-            response = self.connector.create_index(index)
+            response = self.connector.create(index)
         except ES.ConnectionTimeout as err:
             raise EH.DBConnectionError(message="Connection timeout error",
                                        error=str(err.info))
@@ -243,6 +260,9 @@ class _ElasticSearchV1(AbstractConnector):
         except ES.ConnectionError as err:
             raise EH.DBConnectionError(message="Generic connection error",
                                        error=str(err.info))
+        except ES.RequestError as err:
+            raise EH.GenericError(message="Incorrect inserting query",
+                                  error=str(err.info))
         except ES.ElasticsearchException as err:
             raise EH.GenericError(message="Exception while inserting",
                                   error=str(err.info))
@@ -326,11 +346,11 @@ class _ElasticSearchV1(AbstractConnector):
 #         # connObj.execute_insert_query(index='test', docType='testType', body=jsonVariable)
 #         response = connObj.execute_search_query(index='test', docType=None,
 #                                                 body={"query": {"match_all" : { }}})
-#  
+#    
 #         print("Got %d Hits:" % response['hits']['total'])
 #         for hit in response['hits']['hits']:
 #             print(hit["_source"])
-#  
+#    
 #         connObj.close()
 # except Exception as err:
 #     print(err)

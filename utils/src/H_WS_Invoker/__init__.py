@@ -46,7 +46,7 @@ class H_WSInvoker (object):
             xmlRequest = ET.fromstring(returnRequest.text)
         except ET.ParseError:
             raise EH.IncorrectFormatError("Not well-formed", "The output format is not xml, please review ")
-        return xmlRequest
+        return returnRequest.text
 
     def retrieve_information_json(self, query):
         """Returns the information obtained from the specific source and
