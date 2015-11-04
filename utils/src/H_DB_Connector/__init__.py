@@ -55,12 +55,12 @@ class H_DBConnection(object):
         if cls.__conn is None:
             if "elastic_search_v1" == typeDB:
                 LH.fileLogger.info("ElasticSearch connection")
-                type = typeDB
+                cls.__type = typeDB
                 cls.__conn = _ElasticSearchV1(cls)
                 return cls.__conn
             if "mySQL_V1" == typeDB:
                 LH.fileLogger.info("MySQL connection")
-                type = typeDB
+                cls.__type = typeDB
                 cls.__conn = 1  # MySQLV1(self)
                 return cls.__conn
             raise EH.InputError("Incorrect BD name: " + typeDB)
@@ -204,6 +204,7 @@ class _ElasticSearchV1(AbstractConnector):
         try:
             response = self.connector.search(index=index, doc_type=docType,
                                              body=body)
+            return response
         except ES.ConnectionTimeout as err:
             raise EH.DBConnectionError(message="Connection timeout error",
                                        error=str(err.info))
@@ -213,47 +214,57 @@ class _ElasticSearchV1(AbstractConnector):
         except ES.ElasticsearchException as err:
             raise EH.GenericError(message="Exception while searching",
                                   error=str(err.info))
-        return response
 
     def execute_create_table(self, index):
         LH.fileLogger.info("Creating a new table {0}".format(index))
         try:
-            response = self.connector.create(index)
+            response = self.connector.indices.create(index)
+            return response  #do we need to check the response in here or in the function calling??
         except ES.ConnectionTimeout as err:
             raise EH.DBConnectionError(message="Connection timeout error",
                                        error=str(err.info))
         except ES.ConnectionError as err:
             raise EH.DBConnectionError(message="Generic connection error",
                                        error=str(err.info))
+        except ES.RequestError as err:
+            if "IndexAlreadyExistsException" in str(err):
+                LH.fileLogger.info("Table already exists {0}".format(index))
+                return 1
+            else:
+                raise EH.GenericError(message="Exception while creating a new \
+                                              table", error=str(err.info))
         except ES.ElasticsearchException as err:
             raise EH.GenericError(message="Exception while creating a new \
                                   table", error=str(err.info))
-        return response  #do we need to check the response in here or in the function calling??
 
     def execute_create_doc_type(self, index, docType, mapping):
         LH.fileLogger.info("Creating new doc type {0}".format(docType))
         try:
-            response = self.connector.put_mapping(docType,
-                                                  {'properties': mapping},
-                                                  [index])
+            response = self.connector.indices.put_mapping(doc_type=docType,
+                                                          index=index,
+                                                          body=mapping)
             self.connector.indices.refresh(index=index)
+            return response  #do we need to check the response in here or in the function calling??
         except ES.ConnectionTimeout as err:
             raise EH.DBConnectionError(message="Connection timeout error",
                                        error=str(err.info))
         except ES.ConnectionError as err:
             raise EH.DBConnectionError(message="Generic connection error",
                                        error=str(err.info))
+        except ES.NotFoundError as err:
+            raise EH.InputError(message="Not found error",
+                                error=str(err))
         except ES.ElasticsearchException as err:
             raise EH.GenericError(message="Exception while creating a document \
                                   type", error=str(err.info))
-        return response  #do we need to check the response in here or in the function calling??
 
     def execute_insert_query(self, index, docType, body):
         LH.fileLogger.info("Inserting new information into the DB")
         try:
-            response = self.connector.create(index=index, doc_type=docType,
-                                             body=body)
+            response = self.connector.index(index=index, doc_type=docType,
+                                            body=body)
             self.connector.indices.refresh(index=index)
+            return response
         except ES.ConnectionTimeout as err:
             raise EH.DBConnectionError(message="Connection timeout error",
                                        error=str(err.info))
@@ -266,13 +277,12 @@ class _ElasticSearchV1(AbstractConnector):
         except ES.ElasticsearchException as err:
             raise EH.GenericError(message="Exception while inserting",
                                   error=str(err.info))
-        return response
 
-    def execute_update_query(self, index, docType, body):
+    def execute_update_query(self, index, id, docType, body):
         LH.fileLogger.info("Updating information from the DB")
         try:
             response = self.connector.index(index=index, doc_type=docType,
-                                            body=body)
+                                            id=id, body=body)
             self.connector.indices.refresh(index=index)
             return response
         except ES.ConnectionTimeout as err:
@@ -288,7 +298,7 @@ class _ElasticSearchV1(AbstractConnector):
     def execute_delete_table(self, index):
         LH.fileLogger.info("Deleting table {0}".format(index))
         try:
-            return self.connector.delete_index(index)
+            return self.connector.indices.delete(index=index)
         except ES.ConnectionTimeout as err:
             raise EH.DBConnectionError(message="Connection timeout error",
                                        error=str(err.info))
@@ -299,10 +309,10 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.GenericError(message="Exception while deleting a table",
                                   error=str(err.info))
 
-    def execute_delete_id(self, index, docId):
+    def execute_delete_id(self, index, docType, docId):
         LH.fileLogger.info("Deleting document {0}".format(docId))
         try:
-            response = self.connector.delete_index(index)
+            response = self.connector.delete(index, docType, id)
             self.connector.indices.refresh(index=index)
             return response
         except ES.ConnectionTimeout as err:
