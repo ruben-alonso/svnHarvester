@@ -26,10 +26,9 @@ class H_ImportAbstract(with_metaclass(ABCMeta)):
         self._bulid_url()
         try: 
             url = urllib.request.urlopen(self._api_query)
-            result = url.read().decode('utf8')
             if(200 != url.code):
                 raise ValueError('Server respond code '+url.code)
-            return result
+            return url.read().decode('utf8')
         except urllib.error.URLError as e:
             raise e  
     
@@ -51,10 +50,6 @@ class H_ImportAbstract(with_metaclass(ABCMeta)):
 #.########..########.##.......####.##....##.########.......###....##.....##.##.....##.####.##.....##.########..########.########..######.
     
     @property    
-    def _address(self):
-        """Private variable - Address of the API server"""
-    
-    @property    
     def _map(self):
         """Private property defines a map of field {"NameOfField":"Value"} which will be used in query """
     
@@ -62,8 +57,13 @@ class H_ImportAbstract(with_metaclass(ABCMeta)):
     def _map(self,value):
         self._map = value
 
+    @property
+    def api_query(self):
+        """ Contain last query called to API """
     
-    
+    @api_query.getter
+    def api_query(self):
+        return self._api_query
     
     
     

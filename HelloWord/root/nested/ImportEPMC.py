@@ -4,51 +4,43 @@ Created on 21 Oct 2015
 Class created for EPMC import
 To get more information about fields:
 http://europepmc.org/Help#searchbyID
-Writed for "version":"4.3" API
+Written for "version":"4.3" API
 
 
 @author: Mateusz.Kasiuba
 '''
-from root.nested.ImportAbstract import H_ImportAbstract
+from ImportAbstract import H_ImportAbstract
 
 import json
 import math
 import urllib
-from datetime import date
+from datetime import date, timedelta
+from xml.etree.ElementTree import ElementTree, fromstring
 
 
 class H_ImportEPMC(H_ImportAbstract):
     
-    _resulttype = None
-    _query = None
+    _resulttype = 'core'
+    _query = ''
     _ext_id = None
-    _format = None
+    _format = 'json'
     _start_date = None
     _end_date = None
-    _page = None
-    _page_size = None
-    _map = None
+    _page = 1
+    _page_size = 100
+    _map = {'_epmc_query':'query', '_format':'format',
+            '_current_page':'page', '_page_size':'pageSize', 
+            '_resulttype' : 'resulttype'}
     _epmc_query = None
-    _address = None 
+    _address = 'http://www.ebi.ac.uk/europepmc/webservices/rest/search/'
     _current_page = None
     
     
     def __init__(self):
-        self._address = 'http://www.ebi.ac.uk/europepmc/webservices/rest/search/'
-        self._resulttype = 'core'
-        self._format = 'json'
         currdate = date.today()
-        last_month = 12 if 0 == currdate.month-1 else currdate.month-1
-        year = currdate.year
-        if(12==last_month):
-            year = currdate.year-1
-        self._start_date = currdate.replace(month=last_month,day=1,year=year)
-        self._end_date = date.today()
-        self._page = 1
-        self._page_size = 100
-        self._map = {'_epmc_query':'query', '_format':'format',
-                     '_current_page':'page', '_page_size':'pageSize', 
-                     '_resulttype' : 'resulttype'}
+        self._end_date = currdate.replace(day=1)
+        prevdate = self._end_date - timedelta(days=2)
+        self._start_date = prevdate.replace(day=1)
 
     def __get_number_of_pages(self):
         """
@@ -118,11 +110,12 @@ class H_ImportEPMC(H_ImportAbstract):
         page = page if page is not None else self._page
         page_size = page_size if page_size is not None else self._page_size
         self._current_page = page
-        data = json.loads(H_ImportAbstract.import_data(self))
-        if('errCode' in data.keys()) and (404 == data["errCode"]):
-            raise ValueError('API respond code %s With Message %s' % (str(data['errCode']), data['errMsg']))
-        return data
-            
+        data = H_ImportAbstract.import_data(self)
+        if('json' == self._format):
+            return json.loads(data)
+        else:
+            return fromstring(data)
+    
     def _bulid_url(self):
         """
         Private method - bulid a query url
@@ -131,24 +124,12 @@ class H_ImportEPMC(H_ImportAbstract):
             None
         """
         self._epmc_query = self._query + urllib.request.quote(" CREATION_DATE:[%s TO %s]" % 
-                                                              (self.__get_date(self._start_date), 
-                                                              self.__get_date(self._end_date)))
+                                                              (self._start_date.isoformat(), 
+                                                              self._end_date.isoformat()))
         if(self._ext_id is not None):
             self._epmc_query += urllib.request.quote(' AND EXT_ID:%s' % self.ext_id)
         H_ImportAbstract._bulid_url(self)
 
-    def __get_date(self,date):
-        """
-        Private method - bulid a string from date object
-        
-        Args:
-            date: date
-        
-        Returns:
-            String (YYYY-MM-DD)
-        """
-        return str(date.year)+"-"+str('{:02d}'.format(date.month))+"-"+str('{:02d}'.format(date.day))
-        
 #.##.....##....###....##.......####....###....########..########.########
 #.##.....##...##.##...##........##....##.##...##.....##....##....##......
 #.##.....##..##...##..##........##...##...##..##.....##....##....##......
@@ -270,6 +251,10 @@ class H_ImportEPMC(H_ImportAbstract):
             self._end_date = value
         else:
             raise TypeError('Date must be a datetime.date, not a %s' % type(value))
+    
+    @end_date.getter
+    def end_date(self):
+        return self._end_date
     
     @property
     def resulttype(self):

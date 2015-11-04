@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <h1>
+                {% if account.has_role('admin') %} <b>ADMIN</b> {% endif %}
+                {% if account.has_role('repository') %} Repository {% endif %}
+                {% if account.has_role('publisher') %} 
+                {% if account.has_role('repository') %} / {% endif %}
+                Publisher
+                {% endif %}
+                account details
+            </h1>
+            
+            <h4>{{account.data['email']}}</h4>
+            
+            {% if current_user.is_super %}
+            <h4>Created: {{account.data['created_date']}}</h4>
+            {% endif %}
+            
+            <h4>Account ID: {{account.id}}</h4>
+            
+            <h4>API key: {{account.data['api_key']}}</h4>
+            
+            <div class="well" style="margin-top:30px;">
+                <!-- TODO enabling this requires changing user accounts on system as api key is sftp login password
+                <form method="POST" action="{{request.path}}/api_key" style="margin-bottom:10px;">
+                    <button class="btn btn-info btn-block" id="api_key" type="submit">
+                        Generate new API key
+                    </button>
+                </form>
+                -->
+                <form method="POST" action="">
+                    <input type="password" name="password" class="form-control" style="width:50%;display:inline;" placeholder="new password">
+                    <button class="btn btn-primary" id="reset_password" type="submit" style="width:49%;">
+                        Reset account password
+                    </button>
+                </form>
+            </div>
+            
+            {% if account.has_role('repository') %}
+            <div class="well">
+                <form method="POST" action="{{request.path}}/config" enctype="multipart/form-data">
+                    <input type="file" name="file" id="file" class="form-control" style="width:50%;display:inline;">
+                    <button class="btn btn-primary" id="config_upload" type="submit" style="width:49%;">
+                        Upload new match config
+                    </button>
+                    <!-- the ability to retrieve from URL may be turned off for live -->
+                    <input type="text" name="url" id="url" class="form-control" style="width:50%;display:inline;" placeholder="Or retrieve config file from URL">
+                    <button class="btn btn-primary" id="config_retrieve" type="submit" style="width:49%;">
+                        Retrieve new match config
+                    </button>
+                </form>
+                {% if repoconfig %}
+                <a target="_blank" href="/api/v1/config{% if current_user.has_role('admin') %}/{{account.id}}?api_key={{current_user.data['api_key']}}{% else %}?api_key={{account.data['api_key']}}{% endif %}">View current JSON config for this repository (API)</a> 
+                <br><a target="_blank" href="/api/v1/routed/{{account.id}}?since=01/08/2015&api_key={{current_user.data['api_key']}}">View routed notifications for this repository (API)</a> 
+                {% endif %}
+            </div>
+            <p style="font-size:0.8em;">https://raw.githubusercontent.com/JiscPER/jper/develop/docs/csvtemplate.csv<br>
+                https://raw.githubusercontent.com/JiscPER/jper/develop/service/tests/resources/example_repo_config.json</p>
+            {% endif %}
+
+            {% if account.has_role('publisher') %}
+            <div class="well">
+                <p>
+                    To use the API for deposit, follow the documentation here: <br>
+                    <a href="https://github.com/JiscPER/jper/blob/develop/docs/API.md" target="_blank">https://github.com/JiscPER/jper/blob/develop/docs/API.md</a><br><br>
+                    For SFTP access, use the account ID above as username.<br>
+                    The account API key above is the password.<br>
+                    The SFTP address is sftp.pubrouter.jisc.ac.uk<br>
+                    It is on the standard SFTP port (22).<br><br>
+                    Send a directory for every publication notification. There should be no files in the top level of your SFTP folder.<br><br>
+                    To use the SWORD endpoint, use the account ID above as username.
+                    The account API key above is the password.<br>
+                    The SWORD endpoint address is https://pubrouter.jisc.ac.uk/sword
+                </p>                
+            </div>
+            {% endif %}
+
+        </div>
+        
+        <div class="col-md-6">
+            
+            {% if account.has_role('repository') %}
+            <div class="well">                
+            <form method="post" action="">
+			<input type="text" name="repository_name" class="form-control" placeholder="repository name" value="{{account.data.get('repository',{}).get('name','')}}">
+			<input type="text" name="repository_url" class="form-control" placeholder="repository url" value="{{account.data.get('repository',{}).get('url','')}}">
+			<input type="text" name="repository_software" class="form-control" placeholder="repository software" value="{{account.data.get('repository',{}).get('software','')}}">
+			<input type="text" name="sword_username" class="form-control" placeholder="repository SWORD username" value="{{account.data.get('sword',{}).get('username','')}}">
+			<input type="text" name="sword_password" class="form-control" placeholder="repository SWORD password" value="{{account.data.get('sword',{}).get('password','')}}">
+			<input type="text" name="sword_collection" class="form-control" placeholder="repository SWORD collection" value="{{account.data.get('sword',{}).get('collection','')}}">
+			<input type="text" name="packaging" class="form-control" placeholder="packaging prefs (comma separated)" value="{{','.join(account.data.get('packaging',[]))}}">
+            <button class="btn btn-primary btn-block" id="update" type="submit" style="margin-top:5px;">
+                Update details
+            </button>
+            </form>
+            </div>
+            {% endif %}
+            
+            {% if account.has_role('publisher') %}
+            <div class="well">
+            <form method="post" action="">
+			<input type="text" name="embargo_duration" class="form-control" placeholder="embargo duration months (number)" value="{{account.data.get('embargo',{}).get('duration','')}}">
+            <button class="btn btn-primary btn-block" id="update" type="submit" style="margin-top:5px;">
+                Update details
+            </button>
+            </form>
+            </div>
+            {% endif %}
+            
+            
+            {% if current_user.is_super %}
+            <div class="well">
+                {% if account.has_role('publisher') %}
+                <form method="POST" action="{{request.path}}/cease/publisher">
+                    <button class="btn btn-info btn-block" type="submit" style="margin-bottom:3px;">
+                        Cease being a publisher account
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{request.path}}/become/publisher">
+                    <button class="btn btn-info btn-block" type="submit" style="margin-bottom:3px;">
+                        Make this account a publisher account
+                    </button>
+                </form>
+                {% endif %}
+
+                {% if account.has_role('repository') %}
+                <form method="POST" action="{{request.path}}/cease/repository">
+                    <button class="btn btn-info btn-block" type="submit" style="margin-bottom:3px;">
+                        Cease being a repository account
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{request.path}}/become/repository">
+                    <button class="btn btn-info btn-block" type="submit" style="margin-bottom:3px;">
+                        Make this account a repository account
+                    </button>
+                </form>
+                {% endif %}
+
+                {% if account.has_role('admin') %}
+                <form method="POST" action="{{request.path}}/cease/admin">
+                    <button class="btn btn-warning btn-block" type="submit" style="margin-bottom:3px;">
+                        Cease being an admin account
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{request.path}}/cease/admin">
+                    <button class="btn btn-warning btn-block" type="submit" style="margin-bottom:3px;">
+                        Make this account an admin account
+                    </button>
+                </form>
+                {% endif %}
+
+                <br><br>
+                <form method="POST" action="">
+                    <input type="submit" name="submit" class="btn btn-danger btn-block cb" id="delete" value="Delete this account">
+                </form>
+
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    $( document ).ready(function() {        
+        var deleteaccount = function(event) {
+            var conf = confirm("ARE YOU SURE!!!");
+            if (!conf) event.preventDefault();
+        }
+        $('#delete').bind('click',deleteaccount);
+
+    });
+    </script>
+
+
+{% endblock %}
+
+
