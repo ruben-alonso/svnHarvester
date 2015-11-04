@@ -1,0 +1,78 @@
+2015-11-02 14:56:15,602 - file_logger - INFO - Getting DB connection
+2015-11-02 14:56:15,602 - file_logger - INFO - ElasticSearch connection
+2015-11-02 14:56:15,618 - file_logger - INFO - Closing the connection to the DB
+2015-11-02 14:56:15,620 - file_logger - INFO - Getting DB connection
+2015-11-02 14:56:15,620 - file_logger - INFO - ElasticSearch connection
+2015-11-02 14:56:15,620 - file_logger - INFO - Location value errorNo host specified.
+2015-11-02 14:56:15,621 - file_logger - INFO - Getting DB connection
+2015-11-02 14:56:15,621 - file_logger - INFO - ElasticSearch connection
+2015-11-02 14:56:19,690 - file_logger - INFO - Generic connection error<urllib3.connection.HTTPConnection object at 0x03409210>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+2015-11-02 14:56:19,691 - file_logger - INFO - Getting DB connection
+2015-11-02 14:56:19,691 - file_logger - INFO - ElasticSearch connection
+2015-11-02 14:56:59,698 - file_logger - INFO - Generic connection error(<urllib3.connection.HTTPConnection object at 0x034099B0>, 'Connection to 10.100.13.46 timed out. (connect timeout=10)')
+2015-11-02 14:56:59,699 - file_logger - INFO - Retrieving json information
+2015-11-02 14:56:59,701 - file_logger - INFO - Request exceptionInvalid URL 'b': No schema supplied. Perhaps you meant http://b?
+2015-11-02 14:56:59,701 - file_logger - INFO - Retrieving xml information
+2015-11-02 14:56:59,702 - file_logger - INFO - Request exceptionInvalid URL 'a': No schema supplied. Perhaps you meant http://a?
+2015-11-02 14:56:59,702 - file_logger - INFO - Retrieving json information
+2015-11-02 14:57:01,679 - file_logger - INFO - Not well-formedThe output format is not xml, please review 
+2015-11-02 14:57:01,680 - file_logger - INFO - Retrieving xml information
+2015-11-02 14:57:02,428 - file_logger - INFO - Not well-formedThe output format is not xml, please review 
+2015-11-02 14:59:50,271 - file_logger - INFO - Getting DB connection
+2015-11-02 14:59:50,271 - file_logger - INFO - ElasticSearch connection
+2015-11-02 14:59:50,287 - file_logger - INFO - Getting DB connection
+2015-11-02 14:59:50,287 - file_logger - INFO - ElasticSearch connection
+2015-11-02 14:59:50,287 - file_logger - INFO - Location value errorNo host specified.
+2015-11-02 14:59:50,287 - file_logger - INFO - Getting DB connection
+2015-11-02 14:59:50,287 - file_logger - INFO - ElasticSearch connection
+2015-11-02 14:59:54,368 - file_logger - INFO - Generic connection error<urllib3.connection.HTTPConnection object at 0x033DBFD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+2015-11-02 14:59:54,368 - file_logger - INFO - Getting DB connection
+2015-11-02 14:59:54,368 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:00:34,378 - file_logger - INFO - Generic connection error(<urllib3.connection.HTTPConnection object at 0x033FF8F0>, 'Connection to 10.100.13.46 timed out. (connect timeout=10)')
+2015-11-02 15:00:34,379 - file_logger - INFO - Retrieving json information
+2015-11-02 15:00:34,381 - file_logger - INFO - Request exceptionInvalid URL 'b': No schema supplied. Perhaps you meant http://b?
+2015-11-02 15:00:34,381 - file_logger - INFO - Retrieving xml information
+2015-11-02 15:00:34,382 - file_logger - INFO - Request exceptionInvalid URL 'a': No schema supplied. Perhaps you meant http://a?
+2015-11-02 15:00:34,382 - file_logger - INFO - Retrieving json information
+2015-11-02 15:00:36,281 - file_logger - INFO - Not well-formedThe output format is not xml, please review 
+2015-11-02 15:00:36,281 - file_logger - INFO - Retrieving xml information
+2015-11-02 15:00:36,971 - file_logger - INFO - Not well-formedThe output format is not xml, please review 
+2015-11-02 15:00:45,270 - file_logger - INFO - Getting DB connection
+2015-11-02 15:00:45,270 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:00:45,286 - file_logger - INFO - Getting DB connection
+2015-11-02 15:00:45,286 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:00:45,287 - file_logger - INFO - Location value errorNo host specified.
+2015-11-02 15:00:45,287 - file_logger - INFO - Getting DB connection
+2015-11-02 15:00:45,288 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:00:49,317 - file_logger - INFO - Generic connection error<urllib3.connection.HTTPConnection object at 0x03499590>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+2015-11-02 15:00:49,317 - file_logger - INFO - Getting DB connection
+2015-11-02 15:00:49,318 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:01:29,325 - file_logger - INFO - Generic connection error(<urllib3.connection.HTTPConnection object at 0x034999B0>, 'Connection to 10.100.13.46 timed out. (connect timeout=10)')
+2015-11-02 15:01:29,326 - file_logger - INFO - Retrieving json information
+2015-11-02 15:01:29,330 - file_logger - INFO - Request exceptionInvalid URL 'b': No schema supplied. Perhaps you meant http://b?
+2015-11-02 15:01:29,330 - file_logger - INFO - Retrieving xml information
+2015-11-02 15:01:29,331 - file_logger - INFO - Request exceptionInvalid URL 'a': No schema supplied. Perhaps you meant http://a?
+2015-11-02 15:01:29,331 - file_logger - INFO - Retrieving json information
+2015-11-02 15:01:31,289 - file_logger - INFO - Not well-formedThe output format is not xml, please review 
+2015-11-02 15:01:31,290 - file_logger - INFO - Retrieving xml information
+2015-11-02 15:01:32,263 - file_logger - INFO - Not well-formedThe output format is not xml, please review 
+2015-11-02 15:01:34,291 - file_logger - INFO - Getting DB connection
+2015-11-02 15:01:34,291 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:01:34,307 - file_logger - INFO - Getting DB connection
+2015-11-02 15:01:34,307 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:01:34,307 - file_logger - INFO - Location value errorNo host specified.
+2015-11-02 15:01:34,307 - file_logger - INFO - Getting DB connection
+2015-11-02 15:01:34,307 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:01:38,410 - file_logger - INFO - Generic connection error<urllib3.connection.HTTPConnection object at 0x0340A410>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+2015-11-02 15:01:38,411 - file_logger - INFO - Getting DB connection
+2015-11-02 15:01:38,411 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:02:02,795 - file_logger - INFO - Getting DB connection
+2015-11-02 15:02:02,796 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:02:02,810 - file_logger - INFO - Getting DB connection
+2015-11-02 15:02:02,811 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:02:02,811 - file_logger - INFO - Location value errorNo host specified.
+2015-11-02 15:02:02,811 - file_logger - INFO - Getting DB connection
+2015-11-02 15:02:02,811 - file_logger - INFO - ElasticSearch connection
+2015-11-02 15:02:06,849 - file_logger - INFO - Generic connection error<urllib3.connection.HTTPConnection object at 0x03429530>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+2015-11-02 15:02:06,850 - file_logger - INFO - Getting DB connection
+2015-11-02 15:02:06,850 - file_logger - INFO - ElasticSearch connection
