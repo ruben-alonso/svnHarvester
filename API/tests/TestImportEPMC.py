@@ -16,7 +16,7 @@ import mock
 
 class TestImportEPMC(unittest.TestCase):
     
-    __test_file_path = os.path.dirname(os.path.abspath(__file__)) + "\\tests\\"
+    __test_file_path = os.path.dirname(os.path.abspath(__file__)) + "\\data_mock\\"
 
     def test_date_setter(self):
         """Checking date setter - succes sceonario"""

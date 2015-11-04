@@ -1,6 +1,6 @@
 from ImportEPMC import H_ImportEPMC
 from datetime import datetime, date
-from TestImportEPMC import TestImportEPMC
+from tests.TestImportEPMC import TestImportEPMC
 
 # x = H_ImportEPMC()
 # x.query = "responsible"
