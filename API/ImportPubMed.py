@@ -16,6 +16,7 @@ class H_ImportPubMed(H_ImportAbstract):
     _term = None
 
     def __init__(self):
+        raise 'Do not use! Unfinished file'
         self._address = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?'
         self._db = 'pubmed'
         self._retmode = 'xml'
