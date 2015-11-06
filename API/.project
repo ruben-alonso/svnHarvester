@@ -3,6 +3,7 @@
 	<name>API</name>
 	<comment></comment>
 	<projects>
+		<project>OAUtils</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
