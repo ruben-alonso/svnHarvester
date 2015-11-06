@@ -43,10 +43,9 @@ class H_WSInvoker (object):
         except requests.exceptions.RequestException as err:
             raise EH.GenericError("Request exception", str(err))
         try:
-            xmlRequest = ET.fromstring(returnRequest.text)
+            return ET.fromstring(returnRequest.text)
         except ET.ParseError:
             raise EH.IncorrectFormatError("Not well-formed", "The output format is not xml, please review ")
-        return returnRequest.text
 
     def retrieve_information_json(self, query):
         """Returns the information obtained from the specific source and
@@ -66,8 +65,6 @@ class H_WSInvoker (object):
         except requests.exceptions.RequestException as err:
             raise EH.GenericError("Request exception", str(err))
         try:
-            json.loads(returnRequest.text)
+            return json.loads(returnRequest.text)
         except json.decoder.JSONDecodeError:
             raise EH.IncorrectFormatError("Not well-formed", "The output format is not xml, please review ")
-
-        return returnRequest.text
