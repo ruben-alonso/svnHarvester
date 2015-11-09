@@ -202,7 +202,7 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.DBConnectionError(message="Other connection error",
                                        error=str(err.info))
 
-    def execute_search_query(self, index, docType = None, body):
+    def execute_search_query(self, index, docType = None, body = ""):
         LH.fileLogger.info("Executing search query") # How much information do we need here: query, table, etc.
         try:
             response = self.connector.search(index=index, doc_type=docType,
@@ -230,7 +230,7 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.DBConnectionError(message="Generic connection error",
                                        error=str(err.info))
         except ES.RequestError as err:
-            if "IndexAlreadyExistsException" in str(err):
+            if "index_already_exists_exception" in str(err):
                 LH.fileLogger.info("Table already exists {0}".format(index))
                 return 1
             else:
@@ -284,7 +284,7 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.GenericError(message="Exception while inserting",
                                   error=str(err.info))
 
-    def execute_update_query(self, index, id, docType, body):
+    def execute_update_query(self, index, docType, id, body):
         LH.fileLogger.info("Updating information from the DB")
         try:
             response = self.connector.update(index=index, doc_type=docType,

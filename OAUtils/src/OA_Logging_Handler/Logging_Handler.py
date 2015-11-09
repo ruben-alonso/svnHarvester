@@ -13,10 +13,10 @@ specific debug it could be useful to reactive those by changing the propagate
 option to false.
 
 '''
-import logging
+import logging, os
 from logging.config import fileConfig
 
-logging.config.fileConfig('../logging_config.ini')
+logging.config.fileConfig(os.path.dirname(os.path.abspath(__file__))+'\\..\\logging_config.ini')
 fileLogger = logging.getLogger('file_logger')
 consoleLogger = logging.getLogger('root')
 
