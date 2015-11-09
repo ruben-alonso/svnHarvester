@@ -202,7 +202,7 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.DBConnectionError(message="Other connection error",
                                        error=str(err.info))
 
-    def execute_search_query(self, index, docType, body):
+    def execute_search_query(self, index, docType = None, body):
         LH.fileLogger.info("Executing search query") # How much information do we need here: query, table, etc.
         try:
             response = self.connector.search(index=index, doc_type=docType,

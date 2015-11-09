@@ -5,6 +5,7 @@ Created on 3 Nov 2015
 @Description: Config file for tests
 '''
 # Elastic search tests connection variables
+# TODO: try an invalid address and a valid one as a list
 validESConn = [{'host': '10.100.13.98', 'port': 9200}]
 invalidAddrESConn = [{'host': '10.100.13.46', 'port': 9200}]
 invalidPortESConn = [{'host': '10.100.13.46', 'port': 91}]
