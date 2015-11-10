@@ -13,6 +13,10 @@ HISTORY_INDEX_NAME = "history"
 TEMPORARY_DOCTYPE_NAME = "document"
 WEBSERVICES_DOCTYPE_NAME = "webservice"
 HISTORY_DOCTYPE_NAME = "historic"
+
+#Engine names
+MULTI_PAGE = 'multi_page'
+
 WEBSERVICES_MAPPING = {
     "webservice": {
         "properties": {
