@@ -13,7 +13,7 @@ TEMPORARY_DOCTYPE_NAME
 
 @author: Mateusz.Kasiuba
 '''
-from QueryEngine import H_QueryEngine
+from Query_Engine.QueryEngine import H_QueryEngine
 
 from datetime import date, timedelta
 from OA_WS_Invoker.WS_Invoker import H_WSInvoker
@@ -37,9 +37,9 @@ class H_QueryEngineMultiPage(H_QueryEngine):
         LH.fileLogger.info("Creating new MultiPage object params: %s %s %s" % (url,str(date_start),str(date_end)))
         if(0 == date_start):
             prevdate = date.today() - timedelta(days=2)
-            self.date_start = prevdate.replace(day=1)
+            date_start = prevdate.replace(day=1)
         if(0 == date_end):
-            self._date_end = date.today().replace(day=1)
+            date_end = date.today().replace(day=1)
         
         self.__current_page = 1
         self.__api_query = ''
