@@ -67,4 +67,4 @@ class H_WSInvoker (object):
         try:
             return json.loads(returnRequest.text)
         except json.decoder.JSONDecodeError:
-            raise EH.IncorrectFormatError("Not well-formed", "The output format is not xml, please review ")
+            raise EH.IncorrectFormatError("Not well-formed", "The output format is not json, please review ")
