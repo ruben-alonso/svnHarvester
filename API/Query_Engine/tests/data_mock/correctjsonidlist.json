@@ -1,0 +1,1 @@
+{"version":"4.3","hitCount":1,"request":{"query":"responsible CREATION_DATE:[2000-10-20 TO 2015-10-28] AND EXT_ID:26330629","resultType":"idlist","synonym":false,"page":1,"pageSize":10},"resultList":{"result":[{"id":"26330629","source":"MED","pmid":"26330629"}]}}
