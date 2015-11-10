@@ -6,8 +6,13 @@ Created on 26 Oct 2015
 
 DB_NAME = 'elastic_search_v1'
 
-WEBSERVICES_INDEX_NAME = "webservices"
+TEMPORARY_INDEX_NAME = "temporary"
+WEBSERVICES_INDEX_NAME = "webServices"
+HISTORY_INDEX_NAME = "history"
+
+TEMPORARY_DOCTYPE_NAME = "document"
 WEBSERVICES_DOCTYPE_NAME = "webservice"
+HISTORY_DOCTYPE_NAME = "historic"
 WEBSERVICES_MAPPING = {
     "webservice": {
         "properties": {
@@ -50,5 +55,4 @@ configMySQL = {
                'raise_on_warnings': True,
                }
 
-configES = [{'host': '10.100.13.103', 'port': 9200},
-            {'host': 'localhost', 'port': 9200}]
+configES = [{'host': '10.100.13.51', 'port': 9200}]
