@@ -59,4 +59,4 @@ configMySQL = {
                'raise_on_warnings': True,
                }
 
-configES = [{'host': '10.100.13.86', 'port': 9200}]
+configES = [{'host': '10.100.13.8', 'port': 9200}]
