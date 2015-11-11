@@ -56,7 +56,7 @@ def main():
     webservices['email'] = "ruben.alonso@jisc.ac.uk"
     webservices['end_date'] = 1447088002568 #int(time.time() * 1000)
     webservices['engine'] = config.MULTI_PAGE
-    webservices['wait_window'] = 0
+    webservices['wait_window'] = 1
 
     json_webservices = json.dumps(webservices)
     result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,

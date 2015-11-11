@@ -154,16 +154,16 @@ def main(conn):
                                                                 lastDate,
                                                                 untilDate)
             except Exception as err:
-                print("Error!!" + str(err))
-                exceptionInfo = err
+                print("Error!! " + str(err.message))
+                exceptionInfo = err.message
             finally:
                 historyInfo = {}
                 historyInfo['date'] = int(today.timestamp() * 1000)
                 historyInfo['name_ws'] = hit['name']
                 historyInfo['url'] = hit['url']
                 historyInfo['query'] = hit['query']
-                historyInfo['start_date'] = hit['end_date']
-                historyInfo['end_date'] = untilDate.timestamp() * 1000
+                historyInfo['start_date'] = int(hit['end_date'])
+                historyInfo['end_date'] = int(untilDate.timestamp() * 1000)
                 historyInfo['num_files_received'] = numFilesReceived
                 historyInfo['num_files_sent'] = numFilesToSend
                 historyInfo['error'] = str(exceptionInfo)
