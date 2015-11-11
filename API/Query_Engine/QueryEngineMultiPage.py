@@ -141,19 +141,14 @@ class H_QueryEngineMultiPage(H_QueryEngine):
     
     @property
     def db(self):
-        """Set end date for searching publications by date of entry into the \
-        Europe PMC database, in YYYY-MM-DD format; note syntax for searching \
-        date range. By default last month"""  
-        return self._date_end
+        """Set the DB"""  
+        return self._db
     
-    @date_end.setter
-    def date_end(self,value):
-        if(self.__valide_date(value)):
-            self._date_end = value
-        else:
-            raise TypeError('Date must be a datetime.date, not a %s' % type(value))
+    @db.setter
+    def db(self,value):
+        self._db = value
     
-    @date_end.getter
-    def date_end(self):
-        return self._date_end
+    @db.getter
+    def db(self):
+        return self._db
     
