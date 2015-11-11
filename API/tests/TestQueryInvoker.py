@@ -1,41 +1,39 @@
-# '''
-# Created on 03 Nov 2015
-# 
-# Main test class for EPMC
-# 
-# @author: Mateusz.Kasiuba
-# '''
-# import unittest
-# from ImportEPMC import H_ImportEPMC
-# from datetime import date, datetime
-# import mock, json, os, locale, sys
-# import codecs, urllib
-# import re
-# from xml.etree.ElementTree import ElementTree, tostring, fromstring
-# import mock
-# 
-# class TestImportEPMC(unittest.TestCase):
-#     
-#     __test_file_path = os.path.dirname(os.path.abspath(__file__)) + "\\data_mock\\"
-# 
-#     def test_date_setter(self):
-#         """Checking date setter - succes sceonario"""
-#         epmc = H_ImportEPMC()
-#         
-#         #Checking default setting should be from first previous month to first this month
-#         currdate = date.today()
-#         self.assertTrue(epmc.end_date == currdate.replace(day=1))
-#         last_month = 12 if 0 == currdate.month-1 else currdate.month-1
-#         year = currdate.year
-#         if(12==last_month):
-#             year = currdate.year-1
-#         self.assertTrue(epmc.start_date == currdate.replace(month=last_month,day=1,year=year))
-#         
-#         #Checking setter and getter
-#         epmc.end_date = currdate.replace(month=10,day=28)
-#         epmc.start_date = currdate.replace(month=10,day=20,year=2000)        
-#         self.assertTrue(epmc.end_date == currdate.replace(month=10,day=28))
-#         self.assertTrue(epmc.start_date == currdate.replace(month=10,day=20,year=2000))
+'''
+Created on 03 Nov 2015
+ 
+Main test class for EPMC
+ 
+@author: Mateusz.Kasiuba
+'''
+import unittest
+from datetime import date, datetime
+import mock, json, os, locale, sys
+import codecs, urllib
+import re
+from xml.etree.ElementTree import ElementTree, tostring, fromstring
+import mock
+ 
+class TestImportEPMC(unittest.TestCase):
+     
+    __test_file_path = os.path.dirname(os.path.abspath(__file__)) + "\\data_mock\\"
+ 
+    def test_date_setter(self):
+        """Checking date setter - succes sceonario"""
+         
+        #Checking default setting should be from first previous month to first this month
+        currdate = date.today()
+        self.assertTrue(epmc.end_date == currdate.replace(day=1))
+        last_month = 12 if 0 == currdate.month-1 else currdate.month-1
+        year = currdate.year
+        if(12==last_month):
+            year = currdate.year-1
+        self.assertTrue(epmc.start_date == currdate.replace(month=last_month,day=1,year=year))
+         
+        #Checking setter and getter
+        epmc.end_date = currdate.replace(month=10,day=28)
+        epmc.start_date = currdate.replace(month=10,day=20,year=2000)        
+        self.assertTrue(epmc.end_date == currdate.replace(month=10,day=28))
+        self.assertTrue(epmc.start_date == currdate.replace(month=10,day=20,year=2000))
 # 
 #     def test_new_year_import(self):
 #         """
