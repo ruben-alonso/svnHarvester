@@ -10,13 +10,23 @@ import time
 
 
 def main():
+    """ Function to create a initial instance of the DB for the Harvester to
+    start working. It creates the DB indices, the document mappings and insert
+    initial information for the existing WS provider.
+    """
     print("Let's put some data in the DB")
     conn = DB.H_DBConnection().get_connection(config.DB_NAME)
 
     print("Let's clean the tables before starting")
     try:
         conn.execute_delete_table(config.HISTORY_INDEX_NAME)
+    except Exception as err:
+        print(str(err))
+    try:
         conn.execute_delete_table(config.TEMPORARY_INDEX_NAME)
+    except Exception as err:
+        print(str(err))
+    try:
         conn.execute_delete_table(config.WEBSERVICES_INDEX_NAME)
     except Exception as err:
         print(str(err))
@@ -39,12 +49,14 @@ def main():
 
     webservices = {}
     webservices['name'] = "EPMC"
-    webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=xml&pageSize=1000&query=%20CREATION_DATE%3A%5B{startDate}%20TO%20{endDate}%5D"
+    webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({"query" : {"constant_score" : {"filter" : {"exists" : {"field" : "authorlist.author.affiliation"}}}}})
     webservices['frequency'] = "daily"
     webservices['active'] = True
     webservices['email'] = "ruben.alonso@jisc.ac.uk"
-    webservices['last_date'] = int(time.time() * 1000)
+    webservices['end_date'] = 1447088002568 #int(time.time() * 1000)
+    webservices['engine'] = config.MULTI_PAGE
+    webservices['wait_window'] = 1
 
     json_webservices = json.dumps(webservices)
     result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
