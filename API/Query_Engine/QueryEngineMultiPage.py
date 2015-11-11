@@ -50,14 +50,16 @@ class H_QueryEngineMultiPage(H_QueryEngine):
                                end_date = self._date_end.isoformat()
                                )
         
-    def execute(self):
+    def execute(self, DB):
         """
         Import all data from EPMC using setted variables
+        
+        Params:
+            DB - Object of H_DBConnection
         
         Returns:
             Boolean
         """
-        DB = H_DBConnection().get_connection(DB_NAME)
         invoker = H_WSInvoker()
         while True:
             self._bulid_query()
@@ -68,7 +70,7 @@ class H_QueryEngineMultiPage(H_QueryEngine):
             for item in data['resultList']['result']:
                 DB.execute_insert_query(TEMPORARY_INDEX_NAME, TEMPORARY_DOCTYPE_NAME, item)
             self.__current_page += 1
-        return True
+        return data['hitCount']
         
     def _bulid_query(self):
         """Bulid default url and put the start and end date - without page and page number"""
