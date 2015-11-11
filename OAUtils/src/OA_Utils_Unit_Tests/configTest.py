@@ -6,15 +6,15 @@ Created on 3 Nov 2015
 '''
 # Elastic search tests connection variables
 # TODO: try an invalid address and a valid one as a list
-validESConn = [{'host': '10.100.13.98', 'port': 9200}]
+validESConn = [{'host': '10.100.13.93', 'port': 9200}]
 invalidAddrESConn = [{'host': '10.100.13.46', 'port': 9200}]
 invalidPortESConn = [{'host': '10.100.13.46', 'port': 91}]
 emptyConn = [{'host': '', 'port': ''}]
 validESName = 'elastic_search_v1'
 invalidESName = 'fakeDB'
 
-stringESConn = "[{'host': '10.100.13.98', 'port': 9200}]"
-stringESConnSwap = "[{'port': 9200, 'host': '10.100.13.98'}]"
+stringESConn = "[{'host': '10.100.13.93', 'port': 9200}]"
+stringESConnSwap = "[{'port': 9200, 'host': '10.100.13.93'}]"
 
 ESCorrectValue = 200
 
