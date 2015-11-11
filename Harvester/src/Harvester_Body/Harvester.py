@@ -8,7 +8,7 @@ import json
 import OA_DB_Connector.DB_Connector as DB
 import OA_Exception_Handler.Exception_Handler as EH
 import OA_Logging_Handler.Logging_Handler as LH
-import H_Query_Engine.QueryInvoker as QE
+import Query_Engine.QueryInvoker as QE
 import config
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -35,16 +35,17 @@ def process_data(conn, hit, docId, lastDate, untilDate):
     # TODO: multi-page should be retrieved from DB
     try:
         queryEngine = QE.H_QueryInvoker.get_engine(engine,
+                                                   conn,
                                                    myUrl,
                                                    lastDate.date(),
                                                    untilDate.date())
     except ValueError as err:
-        LH.fileLogger.info("Error retrieving the engine {eng}".format(eng=engine))
+        LH.fileLogger.error("Incorrect engine {eng}".format(eng=engine))
         raise err
     try:
-        numFilesReceived = queryEngine.execute(conn)
+        numFilesReceived = queryEngine.execute()
     except Exception as err:
-        LH.fileLogger.info("Error retrieving documents from the WS provider \
+        LH.fileLogger.error("Error retrieving documents from the WS provider \
         {provider}".format(provider=provider))
         raise err
     try:
@@ -52,10 +53,9 @@ def process_data(conn, hit, docId, lastDate, untilDate):
                                            config.TEMPORARY_DOCTYPE_NAME,
                                            query)
     except Exception as err:
-        LH.fileLogger.info("Error retrieving documents with the chosen query")
+        LH.fileLogger.error("Error retrieving documents with the chosen query")
         raise err
 
-    print(result)
     numFilesToSend = result['hits']['total']
     # TODO: Add error checking when we know who to call router
     # TODO: Add resultRouter = router_API.send(result)
@@ -74,10 +74,12 @@ def process_data(conn, hit, docId, lastDate, untilDate):
                                            todayTimeStamp)
         LH.fileLogger.info("Updated last execution date")
     except EH.Error as err:
-        print(str(err))
         LH.fileLogger.error("Execution date update failed",
                             str(err))
         raise err
+    # We need to clean the DB after finishing one provider so we don't duplicate data
+    conn.execute_delete_table(config.TEMPORARY_INDEX_NAME)
+    conn.execute_create_table(config.TEMPORARY_INDEX_NAME)
 
     return numFilesReceived, numFilesToSend
 
@@ -92,8 +94,12 @@ def main(conn):
     Arguments:
         conn: DB connection
     """
-    conn.execute_create_table(config.TEMPORARY_INDEX_NAME)
-
+    try:
+        conn.execute_delete_table(config.TEMPORARY_INDEX_NAME)
+        conn.execute_create_table(config.TEMPORARY_INDEX_NAME)
+    except Exception as err:
+        return "Something fail with the cleaning "
+    
     try:
         query = {
             "query": {
@@ -117,6 +123,7 @@ def main(conn):
         exceptionInfo = None
         numFilesReceived, numFilesToSend = 0, 0
         today = datetime.today()
+        numProviders = 0
         for hit in hits:
             docId = hit['_id']
             hit = hit["_source"]
@@ -147,6 +154,7 @@ def main(conn):
                  fix it to continue")
                 continue
 
+            numProviders += 1
             try:
                 numFilesReceived, numFilesToSend = process_data(conn,
                                                                 hit,
@@ -154,7 +162,6 @@ def main(conn):
                                                                 lastDate,
                                                                 untilDate)
             except Exception as err:
-                print("Error!! " + str(err.message))
                 exceptionInfo = err.message
             finally:
                 historyInfo = {}
@@ -180,14 +187,21 @@ def main(conn):
                                         err.message)
                     return "has failed because..."
 
+                try:
+                    conn.execute_delete_table(config.TEMPORARY_INDEX_NAME)
+                    conn.execute_create_table(config.TEMPORARY_INDEX_NAME)
+                except Exception as err:
+                    return "Something fail with the cleaning "
+
+        return numProviders
+
 if __name__ == '__main__':
 
     try:
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         main(conn)
     except EH.DBConnectionError as err:
-        LH.fileLogger.info("The connection to the database failed, exit")
+        LH.fileLogger.error("The connection to the database failed, exit")
         exit
     finally:
-        # conn.execute_delete_table(config.TEMPORARY_INDEX_NAME)
         DB.H_DBConnection().del_connection()

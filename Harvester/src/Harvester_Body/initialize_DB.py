@@ -6,7 +6,6 @@ Created on 9 Nov 2015
 import json
 import OA_DB_Connector.DB_Connector as DB
 import config
-import time
 
 
 def main():
@@ -50,7 +49,15 @@ def main():
     webservices = {}
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
-    webservices['query'] = json.dumps({"query" : {"constant_score" : {"filter" : {"exists" : {"field" : "authorlist.author.affiliation"}}}}})
+    webservices['query'] = json.dumps({
+        "query" : {
+            "filtered" : {
+                "filter" : {
+                    "exists" : { "field" : "authorList.author.affiliation" }
+                }
+            }
+        }
+                            })
     webservices['frequency'] = "daily"
     webservices['active'] = True
     webservices['email'] = "ruben.alonso@jisc.ac.uk"
