@@ -17,3 +17,4 @@
 /OAUtils/src/OA_Utils_Unit_Tests/.coverage
 /coverage_config.txt
 /.coverage
+/OAUtils/src/tests/.coverage
