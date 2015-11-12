@@ -5,9 +5,9 @@ Created on 5 Nov 2015
 '''
 
 import json
-import OA_DB_Connector.DB_Connector as DB
-import OA_Exception_Handler.Exception_Handler as EH
-import OA_Logging_Handler.Logging_Handler as LH
+import utils.connector.connector as DB
+import utils.exception.handler as EH
+import utils.logger.handler as LH
 import Query_Engine.QueryInvoker as QE
 import config
 from datetime import datetime
@@ -198,10 +198,10 @@ def main(conn):
 if __name__ == '__main__':
 
     try:
-        conn = DB.H_DBConnection().get_connection(config.DB_NAME)
+        conn = DB.U_DBConnection().get_connection(config.DB_NAME)
         main(conn)
     except EH.DBConnectionError as err:
         LH.fileLogger.error("The connection to the database failed, exit")
         exit
     finally:
-        DB.H_DBConnection().del_connection()
+        DB.U_DBConnection().del_connection()
