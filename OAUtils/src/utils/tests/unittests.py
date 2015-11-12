@@ -10,10 +10,9 @@ import utils.invoker.invoker as WI
 import utils.exception.handler as EH
 import utils.connector.connector as DBC
 import config
-import coverage
-import os
 
-class WSInvokerTestCases(UT.TestCase):
+
+class U_WSInvokerTestCases(UT.TestCase):
 
     def test_xml_format_error(self):
         with self.assertRaises(EH.IncorrectFormatError):
@@ -50,7 +49,7 @@ class WSInvokerTestCases(UT.TestCase):
         self.assertEqual(result, configTest.xmlResult, "Great")
 
 
-class DBConnectorTestCases(UT.TestCase):
+class U_DBConnectorTestCases(UT.TestCase):
 
     def test_connection_refused_port(self):
         with self.assertRaises(EH.DBConnectionError):
@@ -301,13 +300,4 @@ class DBConnectorTestCases(UT.TestCase):
         self.assertTrue(result['created'])
 
 if __name__ == '__main__':
-    cov = coverage.coverage()
-    cov.start()
     UT.main()
-    cov.stop()
-    cov.save()
-    cov.report()
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    covdir = os.path.join(basedir, 'coverage')
-    cov.html_report(directory=covdir)
-    cov.erase()
