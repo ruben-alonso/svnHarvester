@@ -99,7 +99,7 @@ def main(conn):
         conn.execute_create_table(config.TEMPORARY_INDEX_NAME)
     except Exception as err:
         return "Something fail with the cleaning "
-    
+
     try:
         query = {
             "query": {
@@ -132,24 +132,24 @@ def main(conn):
             frequency = hit['frequency']
             if 'daily' == frequency:
                 untilDate = today - relativedelta(days=waitWindow)
-                if lastDate > untilDate:
+                if lastDate.date() > untilDate.date():
                     LH.fileLogger.info("Last time checked was less than a day \
                     ago, exit")
                     continue
             elif 'weekly' == frequency:
                 untilDate = today + relativedelta(days=-7) - relativedelta(days=waitWindow)
-                if lastDate > untilDate:
+                if lastDate.date() > untilDate.date():
                     LH.fileLogger.info("Last time checked was less than a week \
                     ago, exit")
                     continue
             elif 'monthly' == frequency:
                 untilDate = today + relativedelta(months=-1) - relativedelta(days=waitWindow)
-                if lastDate > untilDate:
+                if lastDate.date() > untilDate.date():
                     LH.fileLogger.info("Last time checked was less than a month\
                      ago, exit")
                     continue
             else:
-                LH.fileLogger.error("Incorrect value error", "The value\
+                LH.fileLogger.error("Incorrect value error. The value\
                  frequency retrieved from the DB is incorrect, please \
                  fix it to continue")
                 continue
@@ -160,7 +160,7 @@ def main(conn):
                                                                 hit,
                                                                 docId,
                                                                 lastDate,
-                                                                untilDate)
+                                                                untilDate - relativedelta(days=1))
             except Exception as err:
                 exceptionInfo = err.message
             finally:

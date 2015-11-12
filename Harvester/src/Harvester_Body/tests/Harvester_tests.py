@@ -374,7 +374,6 @@ def monthly_with_data(conn):
     webservices['email'] = "ruben@mio.mine"
     today = datetime.today()
     untilDate = today + relativedelta(months=-2)
-    print(str(untilDate))
     webservices['end_date'] = int(untilDate.timestamp() * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 29
@@ -443,7 +442,7 @@ class HarvesterTest(unittest.TestCase):
             hit['engine'] = "BAD_ENGINE"
             HB.process_data(conn, hit, 1, datetime.today(), datetime.today())
             DB.H_DBConnection().del_connection()
- 
+  
     def test_no_active_provider(self):
         LH.fileLogger.info("Test_no_active_provider")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
@@ -451,7 +450,7 @@ class HarvesterTest(unittest.TestCase):
         result = HB.main(conn)
         DB.H_DBConnection().del_connection()
         self.assertEqual("No queries, bye bye", result)
- 
+  
     def test_no_provider(self):
         LH.fileLogger.info("Test_no_provider")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
@@ -459,7 +458,7 @@ class HarvesterTest(unittest.TestCase):
         result = HB.main(conn)
         DB.H_DBConnection().del_connection()
         self.assertEqual("No queries, bye bye", result)
- 
+  
     def test_daily_with_data(self):
         LH.fileLogger.info("Test_daily with data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
@@ -475,15 +474,24 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 1)
- 
+
     def test_daily_without_data(self):
         LH.fileLogger.info("Test_daily without data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         daily_without_data(conn)
-        result = HB.main(conn)
+        HB.main(conn)
         DB.H_DBConnection().del_connection()
-        self.assertEqual(0, result)
- 
+        query = {
+            "query": {
+                "match_all": {}
+            }
+        }
+        result = conn.execute_search_query(config.HISTORY_INDEX_NAME,
+                                           config.HISTORY_DOCTYPE_NAME,
+                                           query)
+        DB.H_DBConnection().del_connection()
+        self.assertEqual(result['hits']['hits'][0]['_source']['num_files_received'], 0)
+
     # TODO: check error inside result
     def test_several_provider_wrong_url(self):
         LH.fileLogger.info("Test_several provider wrong url")
@@ -500,8 +508,8 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 3)
- 
-    # TODO: check error message
+
+#     # TODO: check error message
     def test_several_provider_wrong_query(self):
         LH.fileLogger.info("Test_several provider wrong name")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
@@ -517,7 +525,7 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 2)
- 
+
     def test_weekly_with_data(self):
         LH.fileLogger.info("Test_weekly with data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
@@ -533,7 +541,7 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 2)
- 
+
     def test_weekly_without_data(self):
         LH.fileLogger.info("Test_weekly without data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
@@ -565,7 +573,7 @@ class HarvesterTest(unittest.TestCase):
         result = HB.main(conn)
         DB.H_DBConnection().del_connection()
         self.assertEqual(0, result)
- 
+
     def test_wrong_frequency_name(self):
         LH.fileLogger.info("Test_wrong frequency name")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
