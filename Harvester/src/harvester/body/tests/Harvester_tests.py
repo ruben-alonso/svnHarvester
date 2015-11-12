@@ -6,7 +6,7 @@ Created on 11 Nov 2015
 import json
 import utils.connector.connector as DB
 import utils.logger.handler as LH
-import config
+import utils.config as config
 import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta

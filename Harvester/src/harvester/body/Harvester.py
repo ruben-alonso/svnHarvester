@@ -9,7 +9,7 @@ import utils.connector.connector as DB
 import utils.exception.handler as EH
 import utils.logger.handler as LH
 import Query_Engine.QueryInvoker as QE
-import config
+import utils.config as config
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 

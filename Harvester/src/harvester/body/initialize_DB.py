@@ -4,8 +4,8 @@ Created on 9 Nov 2015
 @author: Ruben.Alonso
 '''
 import json
-import OA_DB_Connector.DB_Connector as DB
-import config
+import utils.connector.connector as DB
+import utils.config as config
 
 
 def main():
@@ -14,7 +14,7 @@ def main():
     initial information for the existing WS provider.
     """
     print("Let's put some data in the DB")
-    conn = DB.H_DBConnection().get_connection(config.DB_NAME)
+    conn = DB.U_DBConnection().get_connection(config.DB_NAME)
 
     print("Let's clean the tables before starting")
     try:
