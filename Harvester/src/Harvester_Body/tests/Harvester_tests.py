@@ -5,6 +5,7 @@ Created on 11 Nov 2015
 '''
 import json
 import OA_DB_Connector.DB_Connector as DB
+import OA_Logging_Handler.Logging_Handler as LH
 import config
 import time
 from datetime import datetime
@@ -14,7 +15,9 @@ import Harvester_Body.Harvester as HB
 
 
 def clean_and_create(conn):
-
+    """Function to remove existing data from the DB and initialise it with
+    indices and mapping for the Harvester structure
+    """
     try:
         conn.execute_delete_table(config.WEBSERVICES_INDEX_NAME)
     except Exception as err:
@@ -52,10 +55,10 @@ def no_active_provider(conn):
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({
-        "query" : {
-            "filtered" : {
-                "filter" : {
-                    "exists" : { "field" : "authorList.author.affiliation" }
+        "query": {
+            "filtered": {
+                "filter": {
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -68,9 +71,9 @@ def no_active_provider(conn):
     webservices['wait_window'] = 1
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def no_provider(conn):
@@ -89,10 +92,10 @@ def wrong_frequency_name(conn):
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({
-        "query" : {
-            "filtered" : {
-                "filter" : {
-                    "exists" : { "field" : "authorList.author.affiliation" }
+        "query": {
+            "filtered": {
+                "filter": {
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -105,9 +108,9 @@ def wrong_frequency_name(conn):
     webservices['wait_window'] = 1
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def daily_with_data(conn):
@@ -123,7 +126,7 @@ def daily_with_data(conn):
         "query": {
             "filtered": {
                 "filter": {
-                    "exists": { "field": "authorList.author.affiliation" }
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -138,25 +141,25 @@ def daily_with_data(conn):
     webservices['wait_window'] = 0
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
     webservices['active'] = False
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
     webservices['active'] = False
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def several_provider_some_wrong(conn):
-    """ Function to initialise the DB with an incorrect engine name
+    """ Function to initialise the DB with incorrect providers
     """
 
     clean_and_create(conn)
@@ -168,7 +171,7 @@ def several_provider_some_wrong(conn):
         "query": {
             "filtered": {
                 "filter": {
-                    "exists": { "field": "authorList.author.affiliation" }
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -183,27 +186,27 @@ def several_provider_some_wrong(conn):
     webservices['wait_window'] = 0
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
     webservices['active'] = True
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/sarch/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/ret/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['active'] = True
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def several_provider_wrong_query(conn):
-    """ Function to initialise the DB with an incorrect engine name
+    """ Function to initialise the DB with an incorrect query
     """
 
     clean_and_create(conn)
@@ -215,7 +218,7 @@ def several_provider_wrong_query(conn):
         "query": {
             "filtered": {
                 "fter": {
-                    "exists": { "field": "authorList.author.affiliation" }
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -230,27 +233,27 @@ def several_provider_wrong_query(conn):
     webservices['wait_window'] = 0
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
     webservices['query'] = json.dumps({
         "query": {
             "filtered": {
                 "filter": {
-                    "exists": { "fild": "authorList.author.affiliation" }
+                    "exists": {"fild": "authorList.author.affiliation"}
                 }
             }
         }
                             })
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def daily_without_data(conn):
-    """ Function to initialise the DB with an incorrect engine name
+    """ Function to initialise the DB without time to execute
     """
 
     clean_and_create(conn)
@@ -259,10 +262,10 @@ def daily_without_data(conn):
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({
-        "query" : {
-            "filtered" : {
-                "filter" : {
-                    "exists" : { "field" : "authorList.author.affiliation" }
+        "query": {
+            "filtered": {
+                "filter": {
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -275,9 +278,9 @@ def daily_without_data(conn):
     webservices['wait_window'] = 0
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def weekly_with_data(conn):
@@ -290,10 +293,10 @@ def weekly_with_data(conn):
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({
-        "query" : {
-            "filtered" : {
-                "filter" : {
-                    "exists" : { "field" : "authorList.author.affiliation" }
+        "query": {
+            "filtered": {
+                "filter": {
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -308,13 +311,13 @@ def weekly_with_data(conn):
     webservices['wait_window'] = 4
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def weekly_without_data(conn):
@@ -327,10 +330,10 @@ def weekly_without_data(conn):
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({
-        "query" : {
-            "filtered" : {
-                "filter" : {
-                    "exists" : { "field" : "authorList.author.affiliation" }
+        "query": {
+            "filtered": {
+                "filter": {
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -343,9 +346,9 @@ def weekly_without_data(conn):
     webservices['wait_window'] = 0
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                            json_webservices)
 
 
 def monthly_with_data(conn):
@@ -358,10 +361,10 @@ def monthly_with_data(conn):
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({
-        "query" : {
-            "filtered" : {
-                "filter" : {
-                    "exists" : { "field" : "authorList.author.affiliation" }
+        "query": {
+            "filtered": {
+                "filter": {
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -370,21 +373,22 @@ def monthly_with_data(conn):
     webservices['active'] = True
     webservices['email'] = "ruben@mio.mine"
     today = datetime.today()
-    untilDate = today - relativedelta(month=2)
+    untilDate = today + relativedelta(months=-2)
+    print(str(untilDate))
     webservices['end_date'] = int(untilDate.timestamp() * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 29
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 def monthly_without_data(conn):
@@ -396,10 +400,10 @@ def monthly_without_data(conn):
     webservices['name'] = "EPMC"
     webservices['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
     webservices['query'] = json.dumps({
-        "query" : {
-            "filtered" : {
-                "filter" : {
-                    "exists" : { "field" : "authorList.author.affiliation" }
+        "query": {
+            "filtered": {
+                "filter": {
+                    "exists": {"field": "authorList.author.affiliation"}
                 }
             }
         }
@@ -412,24 +416,25 @@ def monthly_without_data(conn):
     webservices['wait_window'] = 0
 
     json_webservices = json.dumps(webservices)
-    result = conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
-                                       config.WEBSERVICES_DOCTYPE_NAME,
-                                       json_webservices)
+    conn.execute_insert_query(config.WEBSERVICES_INDEX_NAME,
+                              config.WEBSERVICES_DOCTYPE_NAME,
+                              json_webservices)
 
 
 class HarvesterTest(unittest.TestCase):
 
     def test_wrong_engine_name(self):
+        LH.fileLogger.info("Test_wrong engine name")
         with self.assertRaises(ValueError):
             conn = DB.H_DBConnection().get_connection(config.DB_NAME)
             wrong_frequency_name(conn)
             hit = {}
             hit['url'] = "http://www.ebi.ac.uk/europepmc/webservices/rest/search/resulttype=core&format=json&pageSize=1000&query=%20CREATION_DATE%3A%5B{start_date}%20TO%20{end_date}%5D"
             hit['query'] = json.dumps({
-                "query" : {
-                    "filtered" : {
-                        "filter" : {
-                            "exists" : { "field" : "authorList.author.affiliation" }
+                "query": {
+                    "filtered": {
+                        "filter": {
+                            "exists": {"field": "authorList.author.affiliation"}
                         }
                     }
                 }
@@ -438,22 +443,25 @@ class HarvesterTest(unittest.TestCase):
             hit['engine'] = "BAD_ENGINE"
             HB.process_data(conn, hit, 1, datetime.today(), datetime.today())
             DB.H_DBConnection().del_connection()
-
+ 
     def test_no_active_provider(self):
+        LH.fileLogger.info("Test_no_active_provider")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         no_active_provider(conn)
         result = HB.main(conn)
         DB.H_DBConnection().del_connection()
         self.assertEqual("No queries, bye bye", result)
-
+ 
     def test_no_provider(self):
+        LH.fileLogger.info("Test_no_provider")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         no_active_provider(conn)
         result = HB.main(conn)
         DB.H_DBConnection().del_connection()
         self.assertEqual("No queries, bye bye", result)
-
+ 
     def test_daily_with_data(self):
+        LH.fileLogger.info("Test_daily with data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         daily_with_data(conn)
         HB.main(conn)
@@ -467,16 +475,18 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 1)
-
+ 
     def test_daily_without_data(self):
+        LH.fileLogger.info("Test_daily without data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         daily_without_data(conn)
         result = HB.main(conn)
         DB.H_DBConnection().del_connection()
         self.assertEqual(0, result)
-
+ 
     # TODO: check error inside result
     def test_several_provider_wrong_url(self):
+        LH.fileLogger.info("Test_several provider wrong url")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         several_provider_some_wrong(conn)
         HB.main(conn)
@@ -490,9 +500,10 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 3)
-
+ 
     # TODO: check error message
     def test_several_provider_wrong_query(self):
+        LH.fileLogger.info("Test_several provider wrong name")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         several_provider_wrong_query(conn)
         HB.main(conn)
@@ -506,8 +517,9 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 2)
-
+ 
     def test_weekly_with_data(self):
+        LH.fileLogger.info("Test_weekly with data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         weekly_with_data(conn)
         HB.main(conn)
@@ -521,8 +533,9 @@ class HarvesterTest(unittest.TestCase):
                                            query)
         DB.H_DBConnection().del_connection()
         self.assertEqual(result['hits']['total'], 2)
-
+ 
     def test_weekly_without_data(self):
+        LH.fileLogger.info("Test_weekly without data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         weekly_without_data(conn)
         result = HB.main(conn)
@@ -530,6 +543,7 @@ class HarvesterTest(unittest.TestCase):
         self.assertEqual(0, result)
 
     def test_monthly_with_data(self):
+        LH.fileLogger.info("Test_monthly with data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         monthly_with_data(conn)
         HB.main(conn)
@@ -545,13 +559,15 @@ class HarvesterTest(unittest.TestCase):
         self.assertEqual(result['hits']['total'], 3)
 
     def test_monthly_without_data(self):
+        LH.fileLogger.info("Test_monthly without data")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         monthly_without_data(conn)
         result = HB.main(conn)
         DB.H_DBConnection().del_connection()
         self.assertEqual(0, result)
-
+ 
     def test_wrong_frequency_name(self):
+        LH.fileLogger.info("Test_wrong frequency name")
         conn = DB.H_DBConnection().get_connection(config.DB_NAME)
         wrong_frequency_name(conn)
         result = HB.main(conn)
