@@ -6,7 +6,7 @@ Created on 26 Oct 2015
 their functionalities
 
 '''
-import config
+import utils.config as config
 import sys
 import contextlib
 import json

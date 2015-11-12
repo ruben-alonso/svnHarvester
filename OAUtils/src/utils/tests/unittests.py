@@ -6,10 +6,12 @@ Created on 2 Nov 2015
 '''
 import unittest as UT
 import configTest
+import json
 import utils.invoker.invoker as WI
 import utils.exception.handler as EH
 import utils.connector.connector as DBC
-import config
+from utils import config
+import xml.etree.ElementTree as ET
 
 
 class U_WSInvokerTestCases(UT.TestCase):
@@ -39,14 +41,13 @@ class U_WSInvokerTestCases(UT.TestCase):
         result = wsTest.retrieve_information_json(configTest.jsonURLQuery)
         self.maxDiff = None
         self.assertEqual(str(result),
-                         configTest.jsonResult,
-                         "Great")
+                         json.dumps(configTest.jsonResult))
 
     def test_xml_expected_output(self):
         wsTest = WI.U_WSInvoker()
         result = wsTest.retrieve_information_xml(configTest.xmlURLQuery)
         self.maxDiff = None
-        self.assertEqual(result, configTest.xmlResult, "Great")
+        self.assertEqual(result, ET.fromstring(configTest.xmlResult))
 
 
 class U_DBConnectorTestCases(UT.TestCase):
@@ -177,6 +178,10 @@ class U_DBConnectorTestCases(UT.TestCase):
         jsonVariable = {"doc": {"a": 2, "b": 3, "c": 4}}
         config.configES = configTest.validESConn
         connObj = DBC.U_DBConnection().get_connection(configTest.validESName)
+        connObj.execute_insert_query(index='test',
+                                     docType='unittest',
+                                     body=jsonVariable,
+                                     id=1)
         result = connObj.execute_update_query(index='test',
                                               docType='unittest',
                                               body=jsonVariable,
@@ -211,7 +216,7 @@ class U_DBConnectorTestCases(UT.TestCase):
         connObj = DBC.U_DBConnection().get_connection(configTest.validESName)
         with self.assertRaises(EH.GenericError):
             try:
-                connObj.execute_searcU_query("one", "doc", "badExample")
+                connObj.execute_search_query("one", "doc", "badExample")
             finally:
                 connObj.close()
 
@@ -278,26 +283,34 @@ class U_DBConnectorTestCases(UT.TestCase):
                 result = connObj.execute_create_doc_type(index="dontexist",
                                                          docType="test_doc",
                                                          mapping=mapping)
-                print(str(result))
             finally:
                 connObj.close()
- 
+
     def test_create_doctype_correct_format(self):
         config.configES = configTest.validESConn
         connObj = DBC.U_DBConnection().get_connection(configTest.validESName)
         mapping = {
-          "goodtable": {
-            "mappings": {
-                "map": 2
-                          }
-          }
+            "test": {
+                "properties": {
+                    "name": {"type": "string"},
+                    "url": {"type": "string"},
+                    "query": {"type": "string"},
+                    "frequency": {"type": "string"},
+                    "active": {"type": "boolean"},
+                    "email": {"type": "string"},
+                    "end_date": {"type": "date"},
+                    "engine": {"type": "string"},
+                    "wait_window": {"type": "integer"}
+                }
+            }
         }
+        connObj.execute_create_table(index='goodtable')
         result = connObj.execute_create_doc_type(index="goodtable",
-                                                 docType="test_doc",
+                                                 docType="test",
                                                  mapping=mapping)
-        print(result)
         connObj.close()
-        self.assertTrue(result['created'])
+        print(result)
+        self.assertTrue(result['acknowledged'])
 
 if __name__ == '__main__':
     UT.main()
