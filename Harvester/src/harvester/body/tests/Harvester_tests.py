@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import unittest
-import Harvester_Body.Harvester as HB
+import harvester.body.Harvester as HB
 
 
 def clean_and_create(conn):
