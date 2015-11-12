@@ -18,3 +18,5 @@
 /coverage_config.txt
 /.coverage
 /OAUtils/src/tests/.coverage
+/GUI/.project
+/GUI/.pydevproject
