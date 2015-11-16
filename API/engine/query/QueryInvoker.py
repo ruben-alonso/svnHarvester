@@ -5,8 +5,8 @@ Engine invoker
 
 @author: Mateusz.Kasiuba
 '''
-from Query_Engine.QueryEngineMultiPage import H_QueryEngineMultiPage
-from config import MULTI_PAGE
+from engine.query.QueryEngineMultiPage import H_QueryEngineMultiPage
+from utils.config import MULTI_PAGE
 
 
 class H_QueryInvoker():
