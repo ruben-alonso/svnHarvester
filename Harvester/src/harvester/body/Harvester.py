@@ -3,7 +3,7 @@ Created on 5 Nov 2015
 
 @author: Ruben.Alonso
 '''
-
+from __future__ import division
 import json
 import utils.connector.connector as DB
 import utils.exception.handler as EH
@@ -12,6 +12,11 @@ import Query_Engine.QueryInvoker as QE
 import utils.config as config
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+
+
+def to_timestamp(dt, epoch=datetime(1970, 1, 1)):
+    td = dt - epoch
+    return (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6
 
 
 def process_data(conn, hit, docId, lastDate, untilDate):
@@ -165,12 +170,12 @@ def main(conn):
                 exceptionInfo = err.message
             finally:
                 historyInfo = {}
-                historyInfo['date'] = int(today.timestamp() * 1000)
+                historyInfo['date'] = int(to_timestamp(today) * 1000)
                 historyInfo['name_ws'] = hit['name']
                 historyInfo['url'] = hit['url']
                 historyInfo['query'] = hit['query']
                 historyInfo['start_date'] = int(hit['end_date'])
-                historyInfo['end_date'] = int(untilDate.timestamp() * 1000)
+                historyInfo['end_date'] = int(to_timestamp(untilDate) * 1000)
                 historyInfo['num_files_received'] = numFilesReceived
                 historyInfo['num_files_sent'] = numFilesToSend
                 historyInfo['error'] = str(exceptionInfo)
