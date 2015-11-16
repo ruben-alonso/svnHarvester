@@ -66,5 +66,6 @@ class U_WSInvoker (object):
             raise EH.GenericError("Request exception", str(err))
         try:
             return json.loads(returnRequest.text)
-        except json.decoder.JSONDecodeError:
-            raise EH.IncorrectFormatError("Not well-formed", "The output format is not json, please review ")
+        except Exception as err: #json.decoder.JSONDecodeError:
+            print(str(err))
+            raise EH.IncorrectFormatError("Not well-formed", str(err))
