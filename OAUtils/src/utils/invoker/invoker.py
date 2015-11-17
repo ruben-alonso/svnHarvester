@@ -7,12 +7,12 @@ Created on 26 Oct 2015
 '''
 import json
 import requests
-import OA_Exception_Handler.Exception_Handler as EH
-import OA_Logging_Handler.Logging_Handler as LH
+import utils.exception.handler as EH
+import utils.logger.handler as LH
 import xml.etree.ElementTree as ET
 
 
-class H_WSInvoker (object):
+class U_WSInvoker (object):
     """Web services invoker to retrieve all information from a specific source
     and with specific conditions.
     """
@@ -66,5 +66,6 @@ class H_WSInvoker (object):
             raise EH.GenericError("Request exception", str(err))
         try:
             return json.loads(returnRequest.text)
-        except json.decoder.JSONDecodeError:
-            raise EH.IncorrectFormatError("Not well-formed", "The output format is not json, please review ")
+        except Exception as err: #json.decoder.JSONDecodeError:
+            print(str(err))
+            raise EH.IncorrectFormatError("Not well-formed", str(err))

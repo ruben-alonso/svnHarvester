@@ -6,7 +6,7 @@ Created on 26 Oct 2015
 @Description: Module created to manage all different errors and exceptions.
 
 '''
-import OA_Logging_Handler.Logging_Handler as LH
+import utils.logger.handler as LH
 
 
 class Error(Exception):

@@ -6,17 +6,15 @@ Created on 26 Oct 2015
 their functionalities
 
 '''
-import config
+from six import with_metaclass
+import utils.config as config
 import sys
 import contextlib
-import json
 import urllib3
 import elasticsearch as ES
-import OA_Exception_Handler.Exception_Handler as EH
-import OA_Logging_Handler.Logging_Handler as LH
-from abc import abstractclassmethod, ABCMeta
-from flask._compat import with_metaclass
-from _ssl import err_codes_to_names
+import utils.exception.handler as EH
+import utils.logger.handler as LH
+from abc import abstractmethod, ABCMeta
 
 
 @contextlib.contextmanager
@@ -37,7 +35,7 @@ def nostderr():
         sys.stderr = savestderr
 
 
-class H_DBConnection(object):
+class U_DBConnection(object):
     """ Factory class to select among all the possible DB we can provide"""
     __conn = None
     __type = None
@@ -46,25 +44,19 @@ class H_DBConnection(object):
     def get_connection(cls, typeDB):
         """Factory function which chooses among the possible DB
 
-        Attributes:
-            typeDB -- select which DB is gonig to be created by the factory
-                      function
+        :param typeDB: select which DB is gonig to be created by the factory
+                       function
 
-        Raises: DBConnectionError
+        :raises: DBConnectionError
 
-        Returns: class DB connected to the DB
+        :return: connector object connected to the DB
         """
         LH.fileLogger.info("Getting DB connection")
         if cls.__conn is None:
             if "elastic_search_v1" == typeDB:
                 LH.fileLogger.info("ElasticSearch connection")
                 cls.__type = typeDB
-                cls.__conn = _ElasticSearchV1(cls)
-                return cls.__conn
-            if "mySQL_V1" == typeDB:
-                LH.fileLogger.info("MySQL connection")
-                cls.__type = typeDB
-                cls.__conn = 1  # MySQLV1(self)
+                cls.__conn = _U_ElasticSearchV1(cls)
                 return cls.__conn
             raise EH.InputError("Incorrect BD name: " + typeDB)
         else:
@@ -87,96 +79,89 @@ class H_DBConnection(object):
             cls.__conn = None
 
 
-class AbstractConnector(with_metaclass(ABCMeta)):
+class U_AbstractConnector(with_metaclass(ABCMeta)):
     """ Abstract class for the different connectors we might use"""
 
-    @abstractclassmethod
+    @abstractmethod
     def execute_search_query(self, index, docType, body):
         """ Abstract method for searching on a DB
 
-        Attributes:
-            index -- table to run the query to
-            docType -- type of document target of the query
-            body -- query to execute
+        :param index -- table to run the query to
+        :param docType -- type of document target of the query
+        :param body -- query to execute
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def execute_create_table(self, index):
         """ Abstract method for creating a new table
 
-        Attributes:
-            index -- table to be created
+        :param index -- table to be created
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def execute_create_doc_type(self, index, docType, mapping):
         """ Abstract method for creating a new type of document
 
-        Attributes:
-            index -- table to run the query to
-            docType -- type of document to be created
-            mapping -- structure of the document
+        :param index -- table to run the query to
+        :param docType -- type of document to be created
+        :param mapping -- structure of the document
         """
         pass
 
-    @abstractclassmethod
-    def execute_insert_query(self, index, docType, body):
+    @abstractmethod
+    def execute_insert_query(self, index, docType, body, docID=None):
         """ Abstract method for inserting new data in the DB
 
-        Attributes:
-            index -- table to run the query to
-            docType -- type of document target of the query
-            body -- query to execute
+        :param index -- table to run the query to
+        :param docType -- type of document target of the query
+        :param body -- query to execute
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def execute_update_query(self, index, docType, docId, body):
         """ Abstract method for updating a register by ID
 
-        Attributes:
-            index -- table to run the query to
-            docType -- type of document target of the query
-            docId -- doc to be updated
-            body -- information to be updated to the specified document
+        :param index -- table to run the query to
+        :param docType -- type of document target of the query
+        :param docId -- doc to be updated
+        :param body -- information to be updated to the specified document
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def execute_delete_table(self, index):
         """ Abstract method for deleting the content of a table
 
-        Attributes:
-            index -- table to run the delete command
+        :param index -- table to run the delete command
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def execute_delete_doc(self, index, docId):
         """ Abstract method for deleting a register by ID
 
-        Attributes:
-            index -- table to run the delete command
-            docId -- ID of the document to be deleted
+        :param index -- table to run the delete command
+        :param docId -- ID of the document to be deleted
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def close(self):
         """ Method to close the connection to the DB"""
         pass
 
 
-class _ElasticSearchV1(AbstractConnector):
+class _U_ElasticSearchV1(U_AbstractConnector):
     """ Creates a DB connector to the ES database and provides different
         queries to manage the content"""
 
     def __init__(self, fact):
         """Constructor to initialize the DB connector
 
-        Raises DBConnectionError
+        :raises DBConnectionError
         """
         self.fact = fact
         try:
@@ -189,9 +174,9 @@ class _ElasticSearchV1(AbstractConnector):
         except ES.ConnectionTimeout as err:
             raise EH.DBConnectionError(message="Connection timeout error",
                                        error=str(err.info))
-        except ConnectionRefusedError as err:
-            raise EH.DBConnectionError(message="Connection refused error",
-                                       error=str(err))
+        #except ConnectionRefusedError as err:
+        #    raise EH.DBConnectionError(message="Connection refused error",
+        #                               error=str(err))
         except urllib3.exceptions.NewConnectionError as err:
             raise EH.DBConnectionError(message="New connection error",
                                        error=str(err))
@@ -202,8 +187,16 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.DBConnectionError(message="Other connection error",
                                        error=str(err.info))
 
-    def execute_search_query(self, index, docType = None, body = ""):
-        LH.fileLogger.info("Executing search query") # How much information do we need here: query, table, etc.
+    def execute_search_query(self, index, docType=None, body=""):
+        """ Method for executing a search on the DB
+
+        :param index -- table to run the query to
+        :param docType -- type of document target of the query
+        :param body -- query to execute
+
+        :returns: elastic search response object
+        """
+        LH.fileLogger.info("Executing search query")  # TODO: How much information do we need here: query, table, etc.
         try:
             response = self.connector.search(index=index, doc_type=docType,
                                              body=body)
@@ -219,6 +212,12 @@ class _ElasticSearchV1(AbstractConnector):
                                   error=str(err.info))
 
     def execute_create_table(self, index):
+        """ Method for creating a table (index) on ES DB
+
+        :param index -- table to run the query to
+
+        :returns: elastic search response object
+        """
         LH.fileLogger.info("Creating a new table {0}".format(index))
         try:
             response = self.connector.indices.create(index)
@@ -241,6 +240,14 @@ class _ElasticSearchV1(AbstractConnector):
                                   table", error=str(err.info))
 
     def execute_create_doc_type(self, index, docType, mapping):
+        """ Method for creating a document mapping on the ES DB
+
+        :param index -- table to run the query to
+        :param docType -- name of document
+        :param mapping -- document mapping
+
+        :returns: elastic search response object
+        """
         LH.fileLogger.info("Creating new doc type {0}".format(docType))
         try:
             response = self.connector.indices.put_mapping(doc_type=docType,
@@ -264,11 +271,20 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.GenericError(message="Exception while creating a document \
                                   type", error=str(err.info))
 
-    def execute_insert_query(self, index, docType, body, id=None):
+    def execute_insert_query(self, index, docType, body, docId=None):
+        """ Method for executing a insert on the DB
+
+        :param index -- table to run the query to
+        :param docType -- type of document target of the query
+        :param body -- document body
+        :param docId -- id to save the document
+
+        :returns: elastic search response object
+        """
         LH.fileLogger.info("Inserting new information into the DB")
         try:
             response = self.connector.index(index=index, doc_type=docType,
-                                            body=body, id=id)
+                                            body=body, id=docId)
             self.connector.indices.refresh(index=index)
             return response
         except ES.ConnectionTimeout as err:
@@ -284,11 +300,22 @@ class _ElasticSearchV1(AbstractConnector):
             raise EH.GenericError(message="Exception while inserting",
                                   error=str(err.info))
 
-    def execute_update_query(self, index, docType, id, body):
+    def execute_update_query(self, index, docType, docId, body):
+        """ Method for executing an update on the DB
+
+        :param index -- table to run the query to
+        :param docType -- type of document target of the query
+        :param id -- id of the document to update
+        :param body -- query to execute
+
+        :returns: elastic search response object
+        """
         LH.fileLogger.info("Updating information from the DB")
         try:
-            response = self.connector.update(index=index, doc_type=docType,
-                                            id=id, body=body)
+            response = self.connector.update(index=index,
+                                             doc_type=docType,
+                                             id=docId,
+                                             body=body)
             self.connector.indices.refresh(index=index)
             return response
         except ES.ConnectionTimeout as err:
@@ -305,6 +332,12 @@ class _ElasticSearchV1(AbstractConnector):
                                   error=str(err.info))
 
     def execute_delete_table(self, index):
+        """ Method for deleting a table from ES DB
+
+        :param index -- table to delete
+
+        :returns: elastic search response object
+        """
         LH.fileLogger.info("Deleting table {0}".format(index))
         try:
             return self.connector.indices.delete(index=index)
@@ -319,6 +352,14 @@ class _ElasticSearchV1(AbstractConnector):
                                   error=str(err.info))
 
     def execute_delete_doc(self, index, docType, docId):
+        """ Method for executing a search on the DB
+
+        :param index -- table to run the query to
+        :param docType -- type of document target of the query
+        :param docId -- ID of the document to be removed
+
+        :returns: elastic search response object
+        """
         LH.fileLogger.info("Deleting document {0}".format(docId))
         try:
             response = self.connector.delete(index, docType, docId)
@@ -338,42 +379,7 @@ class _ElasticSearchV1(AbstractConnector):
                                   error=str(err.info))
 
     def close(self):
+        """ Method for closing the connection to the DB
+        """
         LH.fileLogger.info("Closing the connection to the DB")
         self.fact.del_connection()
-
-"""class _MySQLV1(AbstractConnector):
-     Creates a DB connector to the MySQL database and provides different
-        functions to manage it
-
-    def __init__(self):
-        import mysql.connector
-        from mysql.connector import errorcode
-        try:
-            self.connector = mysql.connector.connect(**config.configMySQL)
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print("Something is wrong with your user name or password")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("Database does not exist")
-            else:
-                print(err)
-        else:
-            H_DBConnection.close()
-"""
-
-# jsonVariable = {"a": 0, "b": 0, "c": 0}
-# try:
-#     connObj = H_DBConnection().get_connection('elastic_search_v1')
-#     if connObj.connector is not None:
-#         # connObj.execute_insert_query(index='test', docType='testType', body=jsonVariable)
-#         response = connObj.execute_search_query(index='test', docType=None,
-#                                                 body={"query": {"match_all" : { }}})
-#    
-#         print("Got %d Hits:" % response['hits']['total'])
-#         for hit in response['hits']['hits']:
-#             print(hit["_source"])
-#    
-#         connObj.close()
-# except Exception as err:
-#     print(err)
-#     print(err.message)

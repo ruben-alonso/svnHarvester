@@ -13,12 +13,12 @@ TEMPORARY_DOCTYPE_NAME
 
 @author: Mateusz.Kasiuba
 '''
-from Query_Engine.QueryEngine import H_QueryEngine
+from engine.query.QueryEngine import H_QueryEngine
 
 from datetime import date, timedelta
-from OA_WS_Invoker.WS_Invoker import H_WSInvoker
-import OA_Logging_Handler.Logging_Handler as LH
-from config import TEMPORARY_DOCTYPE_NAME, TEMPORARY_INDEX_NAME
+from utils.invoker.invoker import U_WSInvoker
+import utils.logger.handler as LH
+from utils.config import TEMPORARY_DOCTYPE_NAME, TEMPORARY_INDEX_NAME
 
 
 class H_QueryEngineMultiPage(H_QueryEngine):
@@ -60,7 +60,7 @@ class H_QueryEngineMultiPage(H_QueryEngine):
         Returns:
             Boolean
         """
-        invoker = H_WSInvoker()
+        invoker = U_WSInvoker()
         while True:
             self._bulid_query()
             LH.fileLogger.info("Execute: %s" % self.__api_query)

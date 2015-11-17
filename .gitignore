@@ -20,3 +20,5 @@
 /OAUtils/src/tests/.coverage
 /GUI/.project
 /GUI/.pydevproject
+/OAUtils/src/OA_Logging_Handler/__pycache__/*.pyc
+*.pyc
