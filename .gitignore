@@ -2020,3 +2020,4 @@
 /GUI/src/jper/supervisord.conf
 /GUI/src/jper/test.sh
 /OAUtils/src/OA_DB_Connector/__pycache__/.gitignore
+/GUI/.settings/org.eclipse.ltk.core.refactoring.prefs

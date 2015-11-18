@@ -42,12 +42,12 @@ from service.views.webapi import blueprint as webapi
 app.register_blueprint(webapi, url_prefix="/api/v1")
 
 # adding account management, which enables the login functionality for the api
-from service.views.account import blueprint as account
-app.register_blueprint(account, url_prefix="/account")
+from service.views.harvester import harvester
+app.register_blueprint(harvester, url_prefix="/harvester")
 
 # adding account management, which enables the login functionality for the api
-from service.views.harvester import blueprint as harvester
-app.register_blueprint(harvester, url_prefix="/harvester")
+from service.views.account import blueprint as account
+app.register_blueprint(account, url_prefix="/account")
 
 if app.config.get("FUNCTIONAL_TEST_MODE", False):
     from service.views.test import blueprint as test
