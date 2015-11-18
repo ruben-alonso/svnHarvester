@@ -4,6 +4,10 @@ Created on 26 Oct 2015
 @author: Ruben.Alonso
 '''
 
+FREQUENCY_MONTHLY = 'monthly'
+FREQUENCY_DAILY = 'daily'
+FREQUENCY_WEEKLY = 'weekly' 
+
 DB_NAME = 'elastic_search_v1'
 
 MULTI_PAGE = 'multi_page'

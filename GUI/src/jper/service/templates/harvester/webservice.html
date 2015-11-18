@@ -1,38 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<table class="table table-hover">
-<thead>
-	<tr>
-		<th>Id</th>
-		<th>Name</th>
-		<th>Engine&nbsp;Name</th>
-		<th>Frequency</th>
-		<th>Active</th>
-		<th>Actions</th>
-	</tr>
-</thead>
-{% set i = 0 %}
-{% for webservice in webservice_list %}
-{% set i = i +1 %}
-{% set webservice = webservice['_source']%}
-	<tr>
-		<th scope='row'>{{i}}</th>
-		<td>{{webservice['name']}}</td>
-		<td>{{webservice['engine']}}</td>
-		<td>{{webservice['frequency']}}</td>
-		<td>{{webservice['active']}}</td>
-		<td>
-			<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-			<span class="glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
-		</td>
-	</tr>
-{% endfor %}
-</table>
-
-
-
+<div class="row">
+<div class='col-md-12'>
+	<a href="{{ url_for('harvester.add') }}">
+		<button type="button" class="btn btn-primary pull-right">Add webservice</button>
+	</a>
+<div>
+</div>
+	<table class="table table-hover">
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>Name</th>
+			<th>Engine&nbsp;Name</th>
+			<th>Frequency</th>
+			<th>Active</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	{% set i = 0 %}
+	{% for webservice in webservice_list %}
+	{% set i = i +1 %}
+	{% set param = webservice['_source']%}
+		<tr>
+			<th scope='row'>{{i}}</th>
+			<td>{{param['name']}}</td>
+			<td>{{param['engine']}}</td>
+			<td>{{param['frequency']}}</td>
+			<td>{{param['active']}}</td>
+			<td>
+				<a href="{{ url_for('harvester.edits', webservice_id=webservice['_id']) }}">
+					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+				</a>
+				<span class="glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+</div>
+</div>
 {% endblock %}
 
 {% block extra_js_bottom %}

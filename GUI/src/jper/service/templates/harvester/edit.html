@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% from "harvester/helpers/field_render.html" import render_field %}
+<form method=post action="/register">
+  <dl>
+    {{ render_field(form.url) }}
+    {{ render_field(form.name) }}
+    {{ render_field(form.query) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.end_date) }}
+    {{ render_field(form.frequency) }}
+    {{ render_field(form.engine) }}
+    {{ render_field(form.wait_window) }}
+    {{ render_field(form.active) }}
+  </dl>
+  <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+{% endblock extra_js_bottom %}

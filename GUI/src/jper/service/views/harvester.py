@@ -8,6 +8,7 @@ Webpage - Graphic User Interface for an harvester
 import uuid, json, time, requests
 
 from service.models.harvester import HarvesterModel
+from service.forms.webservice import WebserviceForm
 
 from flask import Blueprint, request, url_for, flash, redirect, make_response
 from flask import render_template, abort
@@ -50,4 +51,30 @@ def details(webservice_id):
     '''
     Page with details 
     '''
-    pass
+    if not current_user.is_super:
+        abort(401)
+    webservice = harvesterModel.get_webservice(webservice_id)
+    return render_template('harvester/detail.html', webservice = webservice)
+
+
+#To consider - better it will be use MANAGE instead ADD and EDIT but at this moment idk how
+#I cannot create method and link to EDIT - idk why
+@harvester.route('/edits/<webservice_id>', methods=['GET','POST'])
+def edits(webservice_id):
+    '''
+    Page with details 
+    '''
+    if not current_user.is_super:
+        abort(401)
+        
+    webservice = harvesterModel.get_webservice(webservice_id)
+    form = WebserviceForm(harvesterModel.multidict_form_data(webservice))
+        
+    return render_template('harvester/edit.html', webservice = webservice, form = form)
+
+@harvester.route('/add')
+def add():
+    '''
+    Add new webservice
+    '''
+    return render_template('harvester/detail.html', webservice = webservice)

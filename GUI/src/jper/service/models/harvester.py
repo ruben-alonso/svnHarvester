@@ -1,6 +1,7 @@
 import utils.connector.connector as DB
 import utils.config as config
 import json
+from werkzeug.datastructures import MultiDict
 
 class HarvesterModel():
     '''
@@ -42,7 +43,18 @@ class HarvesterModel():
         Return:
             webservice object
         '''
-        pass
+        query = {
+            "query": {
+                "match": {
+                    '_id' : str(webservice_id)
+                              }
+            }
+        }
+        
+        print('query')
+        
+        result = self.__conn.execute_search_query(config.WEBSERVICES_INDEX_NAME, config.WEBSERVICES_DOCTYPE_NAME, query)
+        return result['hits']['hits']
     
     def save_webservice(self, webservice):
         '''
@@ -59,3 +71,22 @@ class HarvesterModel():
         
         '''
         pass
+    
+    def multidict_form_data(self,data):
+        '''
+        
+        '''
+        print(data)
+        print(data[0]['_source'])
+        return MultiDict(
+                         [
+                          ('url', data[0]['_source']['url']),
+                          ('name',data[0]['_source']['name']),
+                          ('query',data[0]['_source']['query']),
+                          ('end_date',data[0]['_source']['end_date']),
+                          ('frequency',data[0]['_source']['frequency']),
+                          ('engine',data[0]['_source']['engine']),
+                          ('active',data[0]['_source']['active']),
+                          ('wait_window',data[0]['_source']['wait_window'])
+                          ]
+                         )
