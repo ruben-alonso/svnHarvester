@@ -7,13 +7,14 @@ Webpage - Graphic User Interface for an harvester
 '''
 import uuid, json, time, requests
 
+from service.models.harvester import HarvesterModel
+
 from flask import Blueprint, request, url_for, flash, redirect, make_response
 from flask import render_template, abort
 from flask.ext.login import login_user, logout_user, current_user
 
-from service import models
-
 harvester = Blueprint('harvester', __name__)
+harvesterModel = HarvesterModel()
 
 #This is part of their code in my opinion we should move this part of code in common class
 @harvester.before_request
@@ -30,6 +31,7 @@ def webservice():
     '''
     if not current_user.is_super:
         abort(401)
+    webservice = harvesterModel.get_webservices()
     return render_template('harvester/webservice.html', webservice_list = webservice)
 
 
@@ -38,7 +40,10 @@ def history():
     '''
     Page with list history quesries form harvester
     '''
-    pass
+    if not current_user.is_super:
+        abort(401)
+    history = harvesterModel.get_history()
+    return render_template('harvester/webservice.html', history_list = history)
 
 @harvester.route('/details/<webservice_id>', methods=['GET','POST'])
 def details(webservice_id):
