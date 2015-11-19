@@ -3,9 +3,6 @@
 	<name>Harvester</name>
 	<comment></comment>
 	<projects>
-		<project>API</project>
-		<project>OAUtils</project>
-		<project>router_test</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

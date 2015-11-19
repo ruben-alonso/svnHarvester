@@ -3,6 +3,7 @@ Created on 11 Nov 2015
 
 @author: Ruben.Alonso
 '''
+from __future__ import division
 import json
 import utils.connector.connector as DB
 import utils.logger.handler as LH
