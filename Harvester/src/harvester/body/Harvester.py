@@ -5,6 +5,7 @@ Created on 5 Nov 2015
 '''
 from __future__ import division
 import json
+import requests
 import utils.connector.connector as DB
 import utils.exception.handler as EH
 import utils.logger.handler as LH
@@ -12,24 +13,151 @@ import engine.query.QueryInvoker as QE
 import utils.config as config
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from service import models
+from octopus.lib import dataobj
 
 
 def to_timestamp(dt, epoch=datetime(1970, 1, 1)):
+    """Function to convert datetime into timestamp since it doesn't exist in 
+    python v2
+
+    :param dt: date to be converted
+    :param epoch: date to start counting from to create the date stamp
+
+    :return timestamp of the date since epoch
+    """
     td = dt - epoch
     return (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6
+
+
+def match_router_json(document):
+    """Function which converts DB json format into the notification structure
+    for Router.
+
+    :param document: the json document to be converted.
+
+    :return document in the IncomingNotification Router structure
+    """
+    notification = models.IncomingNotification()
+    # Add event as acceptance to the incoming notification
+    notification._set_single('event',
+                             'acceptance',
+                             coerce=dataobj.to_unicode())
+    # Add links to the incoming notification
+#     uc = dataobj.to_unicode()
+#     if 'fullTextUrlList'in document:
+#         for link in document['fullTextUrlList']['fullTextUrl']:
+#             obj = {"url": notification._coerce(link['url'], uc),
+#                    "type": notification._coerce('fulltext', uc),
+#                    "format": notification._coerce(link['documentStyle'], uc)}
+#             notification._delete_from_list("links", matchsub=obj, prune=False)
+#             notification._add_to_list("links", obj)
+    # Add provider information to incoming notification
+    notification._set_single("provider.agent",
+                             'EPMC',
+                             coerce=dataobj.to_unicode())
+    notification._set_single("provider.ref",
+                             document['id'],
+                             coerce=dataobj.to_unicode())
+    # Add content.packaging_format to incoming notification
+    notification._set_single("content.packaging_format",
+                             'application/json',
+                             coerce=dataobj.to_unicode())
+    # Add embargo end date to incoming notification
+    if 'embargoDate' in document:
+        notification._set_single("embargo.end",
+                                 document['embargo'],
+                                 coerce=dataobj.to_unicode())
+    # Add document metadata using existing setters
+    if 'title' in document:
+        notification.title = document['title']
+    if 'journalInfo' in document:
+        if 'title' in document['journalInfo']['journal']:
+            notification.source_name = document['journalInfo']['journal']['title']
+        if 'issn' in document['journalInfo']['journal']:
+            notification.add_source_identifier("issn", document['journalInfo']['journal']['issn'])
+        if 'essn' in document['journalInfo']['journal']:
+            notification.add_source_identifier("eissn", document['journalInfo']['journal']['essn'])
+    if 'doi' in document:
+        notification.add_identifier("doi", document['doi'])
+    if 'pmid' in document:
+        notification.add_identifier("pmid", document['pmid'])
+    if 'pmcid' in document:
+        notification.add_identifier("pmcid", document['pmcid'])
+    if 'firstPublicationDate' in document:
+        notification.publication_date = document['firstPublicationDate']
+    #notification.date_accepted = document['']  # TODO: which date?
+    #notification.date_submitted = document['']  # TODO: which date?
+    if 'pubTypeList' in document:
+        pubType = ""
+        for publication in document['pubTypeList']['pubType']:
+            pubType = (publication if pubType == "" else publication + "; " + pubType)
+        notification.type = pubType
+    if 'language' in document:
+        notification.language = document['language']
+    if 'authorList' in document:
+        for author in document['authorList']['author']:
+            auxAuthor = {}
+            auxAuthor['name'] = author['fullName']
+            if 'identifier' in author:
+                auxAuthor['identifier'] = author['identifier']
+            auxAuthor['affiliation'] = author['affiliation']
+            notification.add_author(auxAuthor)
+    if 'grantsList' in document:
+        for grant in document['grantsList']['grant']:
+            auxGrant = {}
+            auxGrant['name'] = grant['agency']
+            auxGrant['grant_number'] = grant['grantId']
+            notification.add_project(auxGrant)
+    if 'keywordList' in document:
+        for keyWord in document['keywordList']:
+            notification.add_subject(keyWord)
+    if 'meshHeadingList' in document:
+        for keyWord in document['meshHeadingList']:
+            notification.add_subject(keyWord['descriptionName'])
+    return notification.json()
+
+
+def send_to_router(documents):
+    """Function which receives the documents with affiliation and process them
+    converting those into Router format and send them.
+
+    :param: documents: list retrieved from DB with filter
+
+    :return: number of documents send to router
+    """
+    url = "http://127.0.0.1:5998/api/v1/validation"
+    url += '?api_key=' + 'f78d0001-b6ab-4989-95b8-c46dcba2168e'  # My user's ID
+    i = 0
+    try:
+        for doc in documents['hits']:
+            notification = match_router_json(doc['_source'])
+            print(notification)
+            resp = requests.post(url, data=notification, headers={"Content-Type" : "application/json"})
+            if 202 == resp.status_code:
+                LH.fileLogger.info("Article {art} accepted. {resp}".format(art=doc['_source']['id'], resp=resp.content))
+            elif 400 == resp.status_code:
+                LH.fileLogger.error("Article {art}. Bad request {resp}".format(art=doc['_source']['id'], resp=resp.content))
+            elif 401 == resp.status_code:
+                LH.fileLogger.error("Article {art}. Authentication failure".format(art=doc['_source']['id']))
+            else:
+                LH.fileLogger.error("Article {art}. Some other error {resp}".format(art=doc['_source']['id'], resp=resp.content))
+            i += 1
+    except Exception as err:
+        print("Loop " + str(err))
+    return i
 
 
 def process_data(conn, hit, docId, lastDate, untilDate):
     """ Function to process the data with the information received from
     elasticsearch DB.
 
-    Arguments:
-        conn: DB connection
-        hit: WS provider entry to process
-        today: today date
-        lastDate: last time the query was executed
+    :param: conn: DB connection
+    :param: hit: WS provider entry to process
+    :param: today: today date
+    :param: lastDate: last time the query was executed
 
-    Returns: number of files received from WS provider, number of files which
+    :return: number of files received from WS provider, number of files which
              match the filter
     """
     myUrl = hit['url']
@@ -61,15 +189,14 @@ def process_data(conn, hit, docId, lastDate, untilDate):
         LH.fileLogger.error("Error retrieving documents with the chosen query")
         raise err
 
-    numFilesToSend = result['hits']['total']
     # TODO: Add error checking when we know who to call router
-    # TODO: Add resultRouter = router_API.send(result)
+    numFilesToSend = send_to_router(result['hits'])
 
     print("Received from " + str(provider) + " " + str(numFilesReceived) + " files")
     print("Sent to router " + str(numFilesToSend) + " files")
 
     todayTimeStamp = {
-                         'doc': {'end_date': int(untilDate.timestamp() * 1000)}
+                         'doc': {'end_date': int(to_timestamp(untilDate) * 1000)}
                      }
     try:
 

@@ -14,6 +14,11 @@ import unittest
 import harvester.body.Harvester as HB
 
 
+def to_timestamp(dt, epoch=datetime(1970, 1, 1)):
+    td = dt - epoch
+    return (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6
+
+
 def clean_and_create(conn):
     """Function to remove existing data from the DB and initialise it with
     indices and mapping for the Harvester structure
@@ -136,7 +141,7 @@ def daily_with_data(conn):
     webservices['email'] = "ruben@mio.mine"
     today = datetime.today()
     untilDate = today - relativedelta(days=1)
-    webservices['end_date'] = int(untilDate.timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(untilDate) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 0
 
@@ -181,7 +186,7 @@ def several_provider_some_wrong(conn):
     webservices['email'] = "ruben@mio.mine"
     today = datetime.today()
     untilDate = today - relativedelta(days=1)
-    webservices['end_date'] = int(untilDate.timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(untilDate) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 0
 
@@ -228,7 +233,7 @@ def several_provider_wrong_query(conn):
     webservices['email'] = "ruben@mio.mine"
     today = datetime.today()
     untilDate = today - relativedelta(days=1)
-    webservices['end_date'] = int(untilDate.timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(untilDate) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 0
 
@@ -273,7 +278,7 @@ def daily_without_data(conn):
     webservices['frequency'] = "daily"
     webservices['active'] = True
     webservices['email'] = "ruben@mio.mine"
-    webservices['end_date'] = int(datetime.today().timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(datetime.today()) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 0
 
@@ -306,7 +311,7 @@ def weekly_with_data(conn):
     webservices['email'] = "ruben@mio.mine"
     today = datetime.today()
     untilDate = today - relativedelta(days=11)
-    webservices['end_date'] = int(untilDate.timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(untilDate) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 4
 
@@ -341,7 +346,7 @@ def weekly_without_data(conn):
     webservices['frequency'] = "weekly"
     webservices['active'] = True
     webservices['email'] = "ruben@mio.mine"
-    webservices['end_date'] = int(datetime.today().timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(datetime.today()) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 0
 
@@ -374,7 +379,7 @@ def monthly_with_data(conn):
     webservices['email'] = "ruben@mio.mine"
     today = datetime.today()
     untilDate = today + relativedelta(months=-2)
-    webservices['end_date'] = int(untilDate.timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(untilDate) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 29
 
@@ -410,7 +415,7 @@ def monthly_without_data(conn):
     webservices['frequency'] = "monthly"
     webservices['active'] = True
     webservices['email'] = "ruben@mio.mine"
-    webservices['end_date'] = int(datetime.today().timestamp() * 1000)
+    webservices['end_date'] = int(to_timestamp(datetime.today()) * 1000)
     webservices['engine'] = config.MULTI_PAGE
     webservices['wait_window'] = 0
 
